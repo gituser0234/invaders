@@ -61,11 +61,19 @@ class AudioManager {
 
     _explosionPlayer = AudioPlayer();
     _explosionPlayer.setVolume(1.0); // ボリューム調整
+    await _explosionPlayer.setReleaseMode(ReleaseMode.stop);
+    await _explosionPlayer.setSource(AssetSource('sounds/explosion.mp3'));
 
     _hitPlayer = AudioPlayer();
     _hitPlayer.setVolume(1.0);
+    await _hitPlayer.setReleaseMode(ReleaseMode.stop);
+    await _hitPlayer.setSource(AssetSource('sounds/hit.mp3'));
+
     _hitUfoPlayer = AudioPlayer();
     _hitUfoPlayer.setVolume(1.0);
+    await _hitPlayer.setReleaseMode(ReleaseMode.stop);
+    await _hitPlayer.setSource(AssetSource('sounds/hit_ufo.mp3'));
+
     _ufo4loopPlayer = AudioPlayer();
     _ufo4loopPlayer.setVolume(1.0);
     _ufo4loopPlayer.setReleaseMode(ReleaseMode.loop); // ループ再生
@@ -205,20 +213,22 @@ class AudioManager {
   }
 
   void playExplosion() {
-    unawaited(
-      _explosionPlayer.play(AssetSource('sounds/explosion.mp3')).catchError((e) {
-        // AbortError は無視
-      }),
-    ); // サウンドを再生
+    // unawaited(
+    //   _explosionPlayer.play(AssetSource('sounds/explosion.mp3')).catchError((e) {
+    //     // AbortError は無視
+    //   }),
+    // ); // サウンドを再生
+    unawaited(_explosionPlayer.seek(Duration.zero).then((_) => _explosionPlayer.resume()).catchError((e) {})); // サウンドを再生
     // playSE('sounds/explosion.mp3');
   }
 
   void enemyHit() {
-    unawaited(
-      _hitPlayer.play(AssetSource('sounds/hit.mp3')).catchError((e) {
-        // AbortError は無視
-      }),
-    ); // サウンドを再生
+    // unawaited(
+    //   _hitPlayer.play(AssetSource('sounds/hit.mp3')).catchError((e) {
+    //     // AbortError は無視
+    //   }),
+    // ); // サウンドを再生
+    unawaited(_hitPlayer.seek(Duration.zero).then((_) => _hitPlayer.resume()).catchError((e) {})); // サウンドを再生
     // playSE('sounds/hit.mp3');
   }
 
@@ -228,6 +238,7 @@ class AudioManager {
         // AbortError は無視
       }),
     ); // サウンドを再生
+    unawaited(_hitUfoPlayer.seek(Duration.zero).then((_) => _hitUfoPlayer.resume()).catchError((e) {})); // サウンドを再生
     // playSE('sounds/hit_ufo.mp3');
   }
 
@@ -244,6 +255,7 @@ class AudioManager {
     _ufo4loopPlayer.stop();
   }
 
+  /*
   // 各音声を再生するメソッド
   void playSE(String path, {double volume = 1.0}) {
     final p = AudioPlayer();
@@ -259,7 +271,7 @@ class AudioManager {
       }
     }
   }
-
+*/
   int getPitchIndex(int enemyCount) {
     if (enemyCount > 40) return 0; // 低音
     if (enemyCount > 25) return 1;

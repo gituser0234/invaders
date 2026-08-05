@@ -65,9 +65,6 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
 
     final currentEnemies = enemies.length;
 
-    // final soundEnemies = game.children.whereType<Enemy>().length;
-
-    // final soundRatio = soundEnemies / totalEnemies;
     final soundRatio = currentEnemies / totalEnemies;
     // ==========================
     // 進軍音速度更新
@@ -114,13 +111,17 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
     moveInterval = baseInterval * pow(currentEnemies / totalEnemies, exponent);
     debugPrint("enemy=$currentEnemies moveInterval=$moveInterval");
     // 最低速度制限
-    if (moveInterval < 0.12) {
-      moveInterval = 0.12;
+    // if (moveInterval < 0.12) {
+    //   moveInterval = 0.12;
+    // }
+    if (moveInterval < 0.02) {
+      moveInterval = 0.015;
     }
 
     // 最後の１匹処理
     if (currentEnemies == 1) {
-      step = 1.5 * game.blockSize; // 6; // 1.3〜1.8くらいが本家感
+      // step = 1.5 * game.blockSize; // 6; // 1.3〜1.8くらいが本家感
+      step = 1.9 * game.blockSize; // 6; // 1.3〜1.8くらいが本家感
     }
 
     // 敵全体を横に移動
