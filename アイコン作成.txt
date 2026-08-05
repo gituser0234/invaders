@@ -1,0 +1,89 @@
+◎WEB用アイコン作成
+
+# 512x512（そのままコピー）
+C:\work\ffmpeg-2026-01-07-git-af6a1dd0b2-full_build\bin\ffmpeg.exe -i C:\work\invaders\assets\icon\spaceinvaders_512.png -vf scale=512:512 C:/work/invaders/web/icons/Icon-512.png
+
+# 192x192
+C:\work\ffmpeg-2026-01-07-git-af6a1dd0b2-full_build\bin\ffmpeg.exe -i C:\work\invaders\assets\icon\spaceinvaders_512.png -vf scale=192:192 C:/work/invaders/web/icons/Icon-192.png
+
+
+
+//C:\work\ffmpeg-2026-01-07-git-af6a1dd0b2-full_build\bin\ffmpeg.exe -i C:\work\invaders\assets\icon\spaceinvaders_512.png -vf "scale=410:410,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=transparent" C:/work/invaders/web/icons/Icon-maskable-512.png
+C:\work\ffmpeg-2026-01-07-git-af6a1dd0b2-full_build\bin\ffmpeg.exe -i C:\work\invaders\assets\icon\spaceinvaders_512.png -vf "scale=410:410,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=0x00000000" C:\work\invaders\web\icons\Icon-maskable-512.png
+
+//C:\work\ffmpeg-2026-01-07-git-af6a1dd0b2-full_build\bin\ffmpeg.exe -i C:\work\invaders\assets\icon\spaceinvaders_512.png -vf "scale=154:154,pad=192:192:(ow-iw)/2:(oh-ih)/2:color=transparent" C:/work/invaders/web/icons/Icon-maskable-192.png
+C:\work\ffmpeg-2026-01-07-git-af6a1dd0b2-full_build\bin\ffmpeg.exe -i C:\work\invaders\assets\icon\spaceinvaders_512.png -vf "scale=154:154,pad=192:192:(ow-iw)/2:(oh-ih)/2:color=0x00000000" C:/work/invaders/web/icons/Icon-maskable-192.png
+
+
+C:\work\ffmpeg-2026-01-07-git-af6a1dd0b2-full_build\bin\ffmpeg.exe -i C:\work\invaders\assets\icon\spaceinvaders_512.png -vf scale=48:48 C:/work/invaders/web/favicon.png
+
+
+
+
+
+
+
+
+◎スマホ用アイコン作成
+
+一番よく使われる方法（おすすめ）
+① パッケージ追加
+flutter pub add flutter_launcher_icons
+
+② pubspec.yaml に設定を書く
+
+例：assets/icon/app_icon.png が 48×48 の元画像だとするね。
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+
+
+※ iOSだけ / Androidだけも指定できる
+
+③ 生成コマンド
+flutter pub run flutter_launcher_icons
+
+
+または（新しめFlutterなら）
+
+dart run flutter_launcher_icons
+
+
+🎉 これで全サイズ自動生成される
+
+補足（地味に大事）
+✔ 48×48でも動く？
+
+技術的にはOK
+
+でも 推奨は 1024×1024（特に iOS）
+
+小さい元画像だと拡大されて ボケる 😢
+
+👉 可能なら
+1024×1024（余白なし・正方形・透過PNG） を1枚用意するのがベスト
+
+Androidだけ adaptive icon 使う場合
+flutter_icons:
+  android: true
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
+
+まとめ
+
+✅ コマンドある
+
+✅ 48×48 1枚から全サイズ自動生成できる
+
+⚠ 画質的には 1024×1024 推奨
+
+⭐ flutter_launcher_icons が事実上の標準
+
+必要なら
+「既存プロジェクトに後から入れる時の注意点」
+「iOSで反映されない時の対処」
+も説明するよ。
+
+
