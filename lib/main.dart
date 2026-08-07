@@ -1,16 +1,28 @@
 import 'dart:async';
 
 import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:invaders/game/audio_manager.dart';
 import 'package:invaders/game/invader_game.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 最初に呼ぶ
+
   await Hive.initFlutter(); // Hive を Flutter 用に初期化
   await Hive.openBox<int>('highscore'); // ハイスコア用のボックスを開く
 
-  // runApp(GameWidget(game: InvaderGame()));
+  // ★ Web（PCブラウザ等）ではない、ネイティブアプリ（iOS/Android）の時だけ実行
+  if (!kIsWeb) {
+    // ★ スマホのステータスバーとナビゲーションバーを隠して完全フルスクリーンにする
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+    // 横画面に固定する場合
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitUp]);
+    // await SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+  }
 
   runApp(
     MaterialApp(

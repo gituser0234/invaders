@@ -2,7 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:invaders/game/audio_manager.dart';
 import 'package:invaders/game/defense_block.dart';
 import 'package:invaders/game/enemy.dart';

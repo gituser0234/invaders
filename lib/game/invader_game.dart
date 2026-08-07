@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -275,11 +276,23 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     final scale = scaleX < scaleY ? scaleX : scaleY;
 
     if (isMobile) {
-      // スマホは画面に合わせてスケーリング
-      camera.viewfinder.zoom = scale;
-      // ★ 中央寄せ（これが効く）
-      camera.viewfinder.anchor = Anchor.center;
-      camera.viewfinder.position = Vector2(gameWidth / 2, gameHeight / 2);
+      // // スマホは画面に合わせてスケーリング
+      // camera.viewfinder.zoom = scale;
+      // // ★ 中央寄せ（これが効く）
+      // camera.viewfinder.anchor = Anchor.center;
+      // camera.viewfinder.position = Vector2(gameWidth / 2, gameHeight / 2);
+
+      // ★ スマホ用：解像度を固定するビューポートを設定
+      // これだけで、どんな画面サイズ・比率のスマホ（エミュレータ含む）でも
+      // 自動でアスペクト比を維持して最大まで拡大し、画面中央に配置してくれます。
+      // camera.viewport = FixedResolutionViewport(resolution: Vector2(gameWidth, gameHeight));
+
+      // ★ 全自動でアスペクト比を保ちつつ、画面内にピッタリ収まるように縮小・拡大するカメラをセット
+      camera = CameraComponent.withFixedResolution(width: gameWidth, height: gameHeight);
+
+      // ★ 原点を左上に固定（これで座標のズレを防ぎます）
+      camera.viewfinder.anchor = Anchor.topLeft;
+      camera.viewfinder.position = Vector2.zero();
     } else {
       // PCは等倍表示
       camera.viewfinder.zoom = 1.0; // PCは等倍
@@ -891,8 +904,10 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
         position: Vector2(buttonWidth / 2 + sideMargin, y),
         size: Vector2(buttonWidth, buttonHeight),
         type: ButtonType.left,
-        color: Colors.amber,
-        borderColor: Colors.deepOrange,
+        // color: Colors.amber,
+        // borderColor: Colors.deepOrange,
+        color: Colors.cyanAccent,
+        borderColor: Colors.blue,
         onDown: () => input.left = true,
         onUp: () => input.left = false,
       ),
@@ -905,8 +920,10 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
         position: Vector2(buttonWidth * 1.5 + sideMargin + buttonSpacing, y),
         size: Vector2(buttonWidth, buttonHeight),
         type: ButtonType.right,
-        color: Colors.amber,
-        borderColor: Colors.deepOrange,
+        // color: Colors.amber,
+        // borderColor: Colors.deepOrange,
+        color: Colors.cyanAccent,
+        borderColor: Colors.blue,
         onDown: () => input.right = true,
         onUp: () => input.right = false,
       ),
@@ -919,8 +936,10 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
         position: Vector2(size.x - buttonWidth / 2 - sideMargin, y),
         size: Vector2(buttonWidth, buttonHeight),
         type: ButtonType.fire,
-        color: Colors.orange,
-        borderColor: Colors.deepOrange,
+        // color: Colors.orange,
+        // borderColor: Colors.deepOrange,
+        color: Colors.pinkAccent,
+        borderColor: Colors.purple,
         onDown: () => input.fire = true,
         onUp: () => input.fire = false,
       ),
@@ -1064,6 +1083,120 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
     super.render(canvas);
 
     final rect = Rect.fromLTWH(0, 0, size.x, size.y);
+    // レトロフューチャーな角丸（ボタンの高さの20%を半径にする）
+    final rRect = RRect.fromRectAndRadius(rect, Radius.circular(size.y * 0.2));
+
+    // 1. ボタンの背景（押されている時は少し暗く＆沈み込むように）
+    final bgAlpha = _pressed ? 0.7 : 0.9;
+    _bgPaint.color = color.withValues(alpha: bgAlpha);
+    canvas.drawRRect(rRect, _bgPaint);
+
+    // 2. 内部のハイライト演出（上半分に薄い光を乗せて立体感を出す）
+    if (!_pressed) {
+      final highlightRect = Rect.fromLTWH(2, 2, size.x - 4, size.y * 0.4);
+      final highlightRRect = RRect.fromRectAndRadius(highlightRect, Radius.circular(size.y * 0.15));
+      final highlightPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.15)
+        ..style = PaintingStyle.fill;
+      canvas.drawRRect(highlightRRect, highlightPaint);
+    }
+
+    // 3. 2重の枠線（外枠：深みのある色、内側のアクセント枠：明るい色）
+    _borderPaint
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _pressed ? 2.0 : 3.5;
+    canvas.drawRRect(rRect, _borderPaint);
+
+    // 内側の細いエッジライン
+    final innerRect = rect.deflate(3);
+    final innerRRect = RRect.fromRectAndRadius(innerRect, Radius.circular(size.y * 0.17));
+    final innerBorderPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+    canvas.drawRRect(innerRRect, innerBorderPaint);
+
+    // 4. アイコン描画
+    switch (type) {
+      case ButtonType.left:
+        _drawArrow(canvas, left: true);
+        break;
+      case ButtonType.right:
+        _drawArrow(canvas, left: false);
+        break;
+      case ButtonType.fire:
+        _drawFireIcon(canvas);
+        break;
+    }
+  }
+
+  /// カッコいいシャープな矢印描画
+  void _drawArrow(Canvas canvas, {required bool left}) {
+    final paint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.85)
+      ..style = PaintingStyle.fill;
+
+    // 押されている時は矢印も少し動く（押し込み感）
+    final offsetY = _pressed ? 2.0 : 0.0;
+    final centerY = (size.y / 2) + offsetY;
+
+    final arrowWidth = size.x * 0.22;
+    final arrowHeight = size.y * 0.45;
+    final centerX = size.x / 2;
+
+    final path = Path();
+    if (left) {
+      path.moveTo(centerX + arrowWidth / 2, centerY - arrowHeight / 2);
+      path.lineTo(centerX - arrowWidth / 2, centerY);
+      path.lineTo(centerX + arrowWidth / 2, centerY + arrowHeight / 2);
+    } else {
+      path.moveTo(centerX - arrowWidth / 2, centerY - arrowHeight / 2);
+      path.lineTo(centerX + arrowWidth / 2, centerY);
+      path.lineTo(centerX - arrowWidth / 2, centerY + arrowHeight / 2);
+    }
+
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+
+  /// 近未来的な発射（ファイア）アイコン
+  void _drawFireIcon(Canvas canvas) {
+    final offsetY = _pressed ? 2.0 : 0.0;
+    final center = Offset(size.x / 2, (size.y / 2) + offsetY);
+    final radius = (size.x < size.y ? size.x : size.y) * 0.32;
+
+    // 外側のリング
+    final ringPaint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.4)
+      ..style = PaintingStyle.fill;
+
+    final ringBorder = Paint()
+      ..color = Colors.black.withValues(alpha: 0.7)
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawCircle(center, radius, ringPaint);
+    canvas.drawCircle(center, radius, ringBorder);
+
+    // 中央のレーザーコア風ドット（中心が光っているような二重構造）
+    final coreOuterPaint = Paint()
+      ..color = Colors.deepOrange.withValues(alpha: 0.6)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius * 0.5, coreOuterPaint);
+
+    final coreInnerPaint = Paint()
+      ..color = Colors.black.withValues(alpha: 0.9)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, radius * 0.3, coreInnerPaint);
+  }
+
+  /*
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
 
     // 背景
     _bgPaint.color = _pressed ? color.withValues(alpha: 0.9) : color;
@@ -1145,7 +1278,7 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
 
     canvas.drawCircle(center, radius * 0.35, dotPaint);
   }
-
+*/
   @override
   void onTapDown(TapDownEvent event) {
     if (_pressed) return;
