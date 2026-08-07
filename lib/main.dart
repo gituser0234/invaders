@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -5,11 +6,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:invaders/game/audio_manager.dart';
 import 'package:invaders/game/invader_game.dart';
 
-
 Future<void> main() async {
   await Hive.initFlutter(); // Hive を Flutter 用に初期化
   await Hive.openBox<int>('highscore'); // ハイスコア用のボックスを開く
-  
+
   // runApp(GameWidget(game: InvaderGame()));
 
   runApp(
@@ -33,8 +33,7 @@ Future<void> main() async {
     ),
   );
 
-
-/*
+  /*
   runApp(
     Center(
       child: SizedBox(
@@ -52,7 +51,7 @@ Future<void> main() async {
   );
 */
 
-/*
+  /*
   runApp(
     Center(
       child: SizedBox(
@@ -66,7 +65,7 @@ Future<void> main() async {
   );
 */
 
-/*
+  /*
   runApp(
     LayoutBuilder(
       builder: (context, constraints) {
@@ -122,41 +121,36 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
   void initState() {
     super.initState();
     _volume = AudioManager().masterVolume; // 初期音量を取得
+    debugPrint(" 初期音量  $_volume");
   }
 
   @override
   Widget build(BuildContext context) {
     // groundY を利用してスライダーの top を計算
-    final groundY = widget.game.blockSize * InvaderGame.groundLineDot; 
+    final groundY = widget.game.blockSize * InvaderGame.groundLineDot;
     final screenHeight = MediaQuery.of(context).size.height;
     final bottom = screenHeight - groundY; // groundY から下までの距離
 
     return Positioned(
-      left: 8,           // 左寄せ
-      bottom: bottom,    // 地面ラインにぴったり
+      left: 8, // 左寄せ
+      bottom: bottom, // 地面ラインにぴったり
       child: Container(
         width: 200,
         padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha:  0.8),
-          borderRadius: BorderRadius.circular(8),
-        ),
+        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(8)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Volume',
-              style: TextStyle(color: Colors.white),
-            ),
+            const Text('Volume', style: TextStyle(color: Colors.white)),
             Slider(
               value: _volume,
               min: 0,
               max: 1,
               divisions: 10,
               label: (_volume * 100).round().toString(),
-              activeColor: Colors.blueAccent,   // スライダーの「塗られた部分」
+              activeColor: Colors.blueAccent, // スライダーの「塗られた部分」
               // inactiveColor: Colors.grey,  // スライダーの「残り部分」
-              thumbColor: Colors.green,      // つまみ（ドラッグする丸）の色
+              thumbColor: Colors.green, // つまみ（ドラッグする丸）の色
               onChanged: (value) {
                 setState(() => _volume = value);
                 AudioManager().setMasterVolume(value);

@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/widgets.dart';
@@ -39,6 +39,9 @@ class AudioManager {
   // int _stepIndex = 0;
   int _poolIndex = 0;
 
+  // 初期化フラグ
+  bool _initialized = false;
+
   // シングルトンの factory コンストラクタ
   factory AudioManager() {
     return _instance;
@@ -53,26 +56,113 @@ class AudioManager {
 
   // 各音声ファイルをロードする
   Future<void> init() async {
+    if (_initialized) return;
+    _initialized = true;
+
+    debugPrint("AudioManager init start");
+
+    // 1. プレイヤーのインスタンス作成
     _shootPlayer = AudioPlayer();
-    _shootPlayer.setVolume(1.0);
+    await _shootPlayer.setReleaseMode(ReleaseMode.stop);
+    await _shootPlayer.setVolume(1.0);
+
+    _explosionPlayer = AudioPlayer();
+    await _explosionPlayer.setReleaseMode(ReleaseMode.stop);
+    _explosionPlayer.setVolume(1.0);
+
+    _hitPlayer = AudioPlayer();
+    await _hitPlayer.setReleaseMode(ReleaseMode.stop);
+    _hitPlayer.setVolume(1.0);
+
+    _hitUfoPlayer = AudioPlayer();
+    await _hitUfoPlayer.setReleaseMode(ReleaseMode.stop);
+    _hitUfoPlayer.setVolume(1.0);
+
+    _ufo4loopPlayer = AudioPlayer();
+    await _ufo4loopPlayer.setReleaseMode(ReleaseMode.loop);
+    _ufo4loopPlayer.setVolume(1.0);
+
+    _invaderPlayers = [];
+    for (final path in _invaderSteps) {
+      final list = <AudioPlayer>[];
+      for (int i = 0; i < 2; i++) {
+        final p = AudioPlayer();
+        await p.setReleaseMode(ReleaseMode.stop);
+        await p.setVolume(0.8);
+        list.add(p);
+      }
+      _invaderPlayers.add(list);
+    }
+
+    // 2. 全ファイルの読み込み（setSource）を【完全に同時に】行う（並列化）
+    final loadFutures = <Future>[
+      _shootPlayer.setSource(AssetSource('sounds/shoot.mp3')),
+      _explosionPlayer.setSource(AssetSource('sounds/explosion.mp3')),
+      _hitPlayer.setSource(AssetSource('sounds/hit.mp3')),
+      _hitUfoPlayer.setSource(AssetSource('sounds/hit_ufo.mp3')),
+    ];
+
+    for (int i = 0; i < _invaderSteps.length; i++) {
+      for (int j = 0; j < 2; j++) {
+        loadFutures.add(_invaderPlayers[i][j].setSource(AssetSource(_invaderSteps[i])));
+      }
+    }
+
+    await Future.wait(loadFutures);
+
+    /*
+    // =========================================================================
+    // 3. 【最重要】ブラウザの音声デコードを完全に終わらせるためのウォームアップ
+    // =========================================================================
+    // 初期化の最後で一瞬だけ裏で再生してすぐ止めることで、準備を強制的に完了させます
+    final warmUpFutures = <Future>[
+      _shootPlayer.play(AssetSource('sounds/shoot.mp3')).then((_) => _shootPlayer.stop()).catchError((e) {}),
+      _explosionPlayer.play(AssetSource('sounds/explosion.mp3')).then((_) => _explosionPlayer.stop()).catchError((e) {}),
+      _hitPlayer.play(AssetSource('sounds/hit.mp3')).then((_) => _hitPlayer.stop()).catchError((e) {}),
+      _hitUfoPlayer.play(AssetSource('sounds/hit_ufo.mp3')).then((_) => _hitUfoPlayer.stop()).catchError((e) {}),
+    ];
+
+    for (final list in _invaderPlayers) {
+      for (final p in list) {
+        warmUpFutures.add(p.resume().then((_) => p.stop()).catchError((e) {}));
+      }
+    }
+
+    // ウォームアップが完了するのを一瞬だけ待つ（一瞬で終わります）
+    await Future.wait(warmUpFutures);
+
+    debugPrint("AudioManager init end (Warmed up)");
+*/
+  }
+  /*
+  Future<void> init() async {
+    if (_initialized) return;
+    _initialized = true;
+
+    final sw = Stopwatch()..start();
+
+    debugPrint("AudioManager init start");
+
+    _shootPlayer = AudioPlayer();
+    await _shootPlayer.setVolume(1.0);
     // ★ 再生完了後に音源を破棄しないように設定
     await _shootPlayer.setReleaseMode(ReleaseMode.stop);
     await _shootPlayer.setSource(AssetSource('sounds/shoot.mp3'));
 
     _explosionPlayer = AudioPlayer();
-    _explosionPlayer.setVolume(1.0); // ボリューム調整
+    await _explosionPlayer.setVolume(1.0); // ボリューム調整
     await _explosionPlayer.setReleaseMode(ReleaseMode.stop);
     await _explosionPlayer.setSource(AssetSource('sounds/explosion.mp3'));
 
     _hitPlayer = AudioPlayer();
-    _hitPlayer.setVolume(1.0);
+    await _hitPlayer.setVolume(1.0);
     await _hitPlayer.setReleaseMode(ReleaseMode.stop);
     await _hitPlayer.setSource(AssetSource('sounds/hit.mp3'));
 
     _hitUfoPlayer = AudioPlayer();
-    _hitUfoPlayer.setVolume(1.0);
-    await _hitPlayer.setReleaseMode(ReleaseMode.stop);
-    await _hitPlayer.setSource(AssetSource('sounds/hit_ufo.mp3'));
+    await _hitUfoPlayer.setVolume(1.0);
+    await _hitUfoPlayer.setReleaseMode(ReleaseMode.stop);
+    await _hitUfoPlayer.setSource(AssetSource('sounds/hit_ufo.mp3'));
 
     _ufo4loopPlayer = AudioPlayer();
     _ufo4loopPlayer.setVolume(1.0);
@@ -104,20 +194,25 @@ class AudioManager {
 
         await p.setReleaseMode(ReleaseMode.stop);
         await p.setSource(AssetSource(path));
-        p.setVolume(0.8);
-
+        await p.setVolume(0.8);
+        // await p.play(AssetSource(path));
+        // await p.stop();
+        // await p.resume();
         list.add(p);
       }
 
       _invaderPlayers.add(list);
     }
 
-    // _invaderStepPlayer = AudioPlayer();
-    // _invaderStepPlayer.setVolume(0.8);
-    // // ★ 再生完了後に音源を破棄しないように設定
-    // await _invaderStepPlayer.setReleaseMode(ReleaseMode.stop);
-    // await _invaderStepPlayer.setSource(AssetSource('sounds/shoot.mp3'));
+    debugPrint("AudioManager init end total=${sw.elapsedMilliseconds}ms");
+
+    // sw.stop();
+    debugPrint("AudioManager init end");
+
+    // debugPrint(_shootPlayer.state.toString());
+    // debugPrint(_shootPlayer.source.toString());
   }
+*/
 
   void setMasterVolume(double value) {
     masterVolume = value;
@@ -145,7 +240,8 @@ class AudioManager {
     final player = players[_poolIndex];
 
     unawaited(
-      player.seek(Duration.zero).then((_) => player.resume()).catchError((e) {
+      // player.seek(Duration.zero).then((_) => player.resume()).catchError((e) {
+      player.stop().then((_) => player.resume()).catchError((e) {
         debugPrint(e.toString());
       }),
     );
@@ -207,8 +303,16 @@ class AudioManager {
     //   }),
     // ); // サウンドを再生
 
-    unawaited(_shootPlayer.seek(Duration.zero).then((_) => _shootPlayer.resume()).catchError((e) {})); // サウンドを再生
+    debugPrint("before state=${_shootPlayer.state}");
 
+    unawaited(
+      _shootPlayer.seek(Duration.zero).then((_) => _shootPlayer.resume()).catchError((e, s) {
+        debugPrint("shoot error=$e");
+        debugPrint("$s");
+      }),
+    );
+
+    debugPrint("masterVolume=$masterVolume");
     // playSE('sounds/shoot.mp3');
   }
 

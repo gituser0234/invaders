@@ -109,7 +109,7 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
     // final baseInterval = 0.5;  // 全員いるときの間隔
     // final exponent = 2; //0.5;      // 0.5:平方根でやや緩やか、1:線形、2:急加速
     moveInterval = baseInterval * pow(currentEnemies / totalEnemies, exponent);
-    debugPrint("enemy=$currentEnemies moveInterval=$moveInterval");
+    // debugPrint("enemy=$currentEnemies moveInterval=$moveInterval");
     // 最低速度制限
     // if (moveInterval < 0.12) {
     //   moveInterval = 0.12;

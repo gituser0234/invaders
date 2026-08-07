@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'dart:math';
-
 
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -22,34 +22,25 @@ import 'player.dart';
 import 'enemy.dart';
 
 ///　ゲームステータス
-enum GameState {
-  title,
-  playing,
-  roundClear,
-  gameOver,
-}
+enum GameState { title, playing, roundClear, gameOver }
 
 /// 操作状態クラス
 class InputState {
   bool left = false;
   bool right = false;
   bool fire = false;
-
 }
 
 /// インベーダゲーム
 class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
-// class InvaderGame extends FlameGame with HasCollisionDetection, HasKeyboardHandlerComponents {
-// class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardHandler, HasTappables {
+  // class InvaderGame extends FlameGame with HasCollisionDetection, HasKeyboardHandlerComponents {
+  // class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardHandler, HasTappables {
 
   // 開発用フラグ: true → スマホ 1pxスケール, false → 開発用見やすい4pxスケール　ブラウザ
   static const bool useHighRes = false;
   static const bool showDebugGrid = false; //true; // デバッグ用グリッド
 
-
-  bool get isMobile =>
-    defaultTargetPlatform == TargetPlatform.android ||
-    defaultTargetPlatform == TargetPlatform.iOS;
+  bool get isMobile => defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
 
   // 論理サイズ（本家を想定）
   static const int _baseWidth = 224;
@@ -63,14 +54,13 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   int get baseHeight => _baseHeight;
 
   // ドットの表示サイズ
-  late final double  _blockSize;
+  late final double _blockSize;
   double get blockSize => _blockSize;
 
   // Player（砲台）
   late Player player;
   // Player（砲台）ドット幅
-  static const int playerDotWidth = 11; 
-
+  static const int playerDotWidth = 11;
 
   double _enemyShootTimer = 0.0;
   final double _enemyShootInterval = 1.0; // 1秒ごとに射出判定
@@ -83,96 +73,96 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   // カニ
   final crabShapes = [
     [
-      [0,1,0,0,0,1,0],
-      [0,1,0,0,0,1,0],
-      [1,1,1,1,1,1,1],
-      [1,0,1,1,1,0,1],
-      [1,0,1,0,1,0,1],
-      [0,0,1,0,1,0,0],
+      [0, 1, 0, 0, 0, 1, 0],
+      [0, 1, 0, 0, 0, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1],
+      [1, 0, 1, 0, 1, 0, 1],
+      [0, 0, 1, 0, 1, 0, 0],
     ],
     [
-      [0,1,0,0,0,1,0],
-      [0,1,0,0,0,1,0],
-      [1,1,1,1,1,1,1],
-      [1,0,1,1,1,0,1],
-      [0,1,0,1,0,1,0],
-      [0,0,0,1,0,0,0],
+      [0, 1, 0, 0, 0, 1, 0],
+      [0, 1, 0, 0, 0, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1],
+      [0, 1, 0, 1, 0, 1, 0],
+      [0, 0, 0, 1, 0, 0, 0],
     ],
     [
-      [0,1,0,0,0,1,0],
-      [0,1,0,0,0,1,0],
-      [1,1,1,1,1,1,1],
-      [1,0,1,1,1,0,1],
-      [1,0,1,0,1,0,1],
-      [0,1,0,0,0,1,0],
+      [0, 1, 0, 0, 0, 1, 0],
+      [0, 1, 0, 0, 0, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1],
+      [1, 0, 1, 0, 1, 0, 1],
+      [0, 1, 0, 0, 0, 1, 0],
     ],
   ];
 
   // イカ
   final squidShapes = [
     [
-      [0,0,1,0,1,0,0],
-      [0,1,0,1,0,1,0],
-      [1,1,1,1,1,1,1],
-      [1,0,1,1,1,0,1],
-      [0,1,0,1,0,1,0],
-      [1,0,0,1,0,0,1],
+      [0, 0, 1, 0, 1, 0, 0],
+      [0, 1, 0, 1, 0, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1],
+      [0, 1, 0, 1, 0, 1, 0],
+      [1, 0, 0, 1, 0, 0, 1],
     ],
     [
-      [0,0,1,0,1,0,0],
-      [0,1,0,1,0,1,0],
-      [1,1,1,1,1,1,1],
-      [1,0,1,1,1,0,1],
-      [1,0,1,0,0,1,0],
-      [0,1,0,1,0,1,0],
+      [0, 0, 1, 0, 1, 0, 0],
+      [0, 1, 0, 1, 0, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1],
+      [1, 0, 1, 0, 0, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0],
     ],
   ];
 
   //　タコ
   final octopusShapes = [
     [
-      [0,1,1,1,1,1,1,0],
-      [1,1,0,1,1,0,1,1],
-      [1,1,1,1,1,1,1,1],
-      [1,0,1,1,1,0,1,1],
-      [1,0,1,1,1,0,1,1],
-      [0,1,0,0,0,1,0,0],
+      [0, 1, 1, 1, 1, 1, 1, 0],
+      [1, 1, 0, 1, 1, 0, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1, 1],
+      [0, 1, 0, 0, 0, 1, 0, 0],
     ],
     [
-      [0,1,1,1,1,1,1,0],
-      [1,1,0,1,1,0,1,1],
-      [1,1,1,1,1,1,1,1],
-      [1,0,1,1,1,0,1,1],
-      [0,1,0,1,0,1,0,0],
-      [1,0,1,0,0,1,0,1],
+      [0, 1, 1, 1, 1, 1, 1, 0],
+      [1, 1, 0, 1, 1, 0, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1, 1],
+      [0, 1, 0, 1, 0, 1, 0, 0],
+      [1, 0, 1, 0, 0, 1, 0, 1],
     ],
   ];
 
   //　敵キャラの色リスト
   final enemyColors = [
-  Colors.redAccent,      // 上段
-  Colors.orangeAccent,   // 2段目
-  Colors.yellowAccent,   // 3段目
-  Colors.greenAccent,    // 4段目
-  Colors.blueAccent,     // 下段
+    Colors.redAccent, // 上段
+    Colors.orangeAccent, // 2段目
+    Colors.yellowAccent, // 3段目
+    Colors.greenAccent, // 4段目
+    Colors.blueAccent, // 下段
   ];
 
   // UFOの形状
   final ufoShape = [
     [
-      [0,0,1,1,1,1,1,1,0,0],
-      [0,1,1,1,1,1,1,1,1,0],
-      [1,1,1,1,1,1,1,1,1,1],
-      [1,0,1,1,1,1,1,1,0,1],
-      [0,1,1,1,1,1,1,1,1,0],
+      [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+      [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
     ],
     [
-      [0,0,1,1,1,1,1,1,0,0],
-      [0,1,1,1,1,1,1,1,1,0],
-      [1,1,1,1,1,1,1,1,1,1],
-      [1,0,1,1,1,1,1,1,0,1],
-      [0,1,0,1,1,1,1,0,1,0],
-    ]
+      [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+      [0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
+    ],
   ];
 
   // 操作入力状態
@@ -185,6 +175,9 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
   // ハイスコア管理用 Hive Box
   late Box<int> _hiScoreBox;
+
+  // Web/モバイルでのオーディオロック解除済みフラグ
+  // bool _audioUnlocked = false;
   // ハイスコア表示
   late HiScoreDisplay hiScoreDisplay;
   // プレイヤーのスコア表示用コンポーネント
@@ -205,7 +198,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   late TextComponent roundText;
 
   /// コンストラクタ
-  InvaderGame():super() {
+  InvaderGame() : super() {
     //ドットサイズ
     // _blockSize = useHighRes ? 1 : 4;
     _blockSize = 4; // ★ 常に4で固定
@@ -214,24 +207,19 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     //   width: baseWidth * _blockSize.toDouble(),
     //   height: baseHeight * _blockSize.toDouble(),
     // )
-    camera = CameraComponent.withFixedResolution(
-      width: baseWidth * _blockSize,
-      height: baseHeight * _blockSize,
-    )
-    ..viewfinder.anchor = Anchor.topLeft
-    ..viewfinder.position = Vector2.zero();
+    camera = CameraComponent.withFixedResolution(width: baseWidth * _blockSize, height: baseHeight * _blockSize)
+      ..viewfinder.anchor = Anchor.topLeft
+      ..viewfinder.position = Vector2.zero();
 
     // add(camera);
-    
   }
-
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    
+
     // AudioManager を初期化
-    await AudioManager().init();
+    // await AudioManager().init();
 
     //ハイスコア取得
     _hiScoreBox = Hive.box<int>('highscore');
@@ -244,8 +232,22 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // ゲーム開始前に onLoad などで追加
     startMessage = StartMessage(
       size,
-      gameRef: this, 
-      onStart: () { startGame(); });
+      gameRef: this,
+      onStart: () async {
+        // if (!_audioUnlocked) {
+        //   await AudioManager().resumeAudio();
+        //   _audioUnlocked = true;
+        // }
+        // await AudioManager().resumeAudio();
+        // await AudioManager().init(); // これはOKだけど、やっぱり少し遅れてたぶん、どっかに溜まってたおとが８連発くらい一気になるっぽい
+        // await AudioManager().warmUpAllSounds();
+        // await AudioManager().resumeAudio();
+        // await Future.delayed(const Duration(milliseconds: 900));
+
+        startGame();
+      },
+    );
+
     add(startMessage);
 
     // Flame が用意している「開発用デバッグ表示」を有効化するスイッチです。
@@ -263,7 +265,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
 
-    final gameWidth  = baseWidth * _blockSize;
+    final gameWidth = baseWidth * _blockSize;
     final gameHeight = baseHeight * _blockSize;
 
     final scaleX = size.x / gameWidth;
@@ -277,11 +279,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       camera.viewfinder.zoom = scale;
       // ★ 中央寄せ（これが効く）
       camera.viewfinder.anchor = Anchor.center;
-      camera.viewfinder.position = Vector2(
-        gameWidth / 2,
-        gameHeight / 2,
-      );
-
+      camera.viewfinder.position = Vector2(gameWidth / 2, gameHeight / 2);
     } else {
       // PCは等倍表示
       camera.viewfinder.zoom = 1.0; // PCは等倍
@@ -290,20 +288,16 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     }
 
     // debugPrint(' scale=$scale zoom=${camera.viewfinder.zoom}');
-
   }
-
-
 
   /// キーボード入力処理
   @override
   KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-
     // KeyDownEvent を使う
     if (event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.enter) {
         if (state == GameState.title) {
-          startGame();           // ゲーム開始処理
+          startGame(); // ゲーム開始処理
         }
       }
     }
@@ -320,10 +314,17 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     return KeyEventResult.handled;
   }
 
-
   /// ゲーム開始処理
-  void startGame() {
+  Future<void> startGame() async {
+    // final sw = Stopwatch()..start();
+
+    // debugPrint("startGame start");
+
     startMessage.removeFromParent(); // タイトル消去
+
+    // ----------------------------------------------------
+    // 2. 【先に】ゲームの基本要素（UI・自機・壁）を画面に配置する
+    // ----------------------------------------------------
 
     print("state:      $state");
     // ゲームクリア処理対応
@@ -354,9 +355,9 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     );
     add(scoreText);
 
-    // EnemyManager を追加
-    enemyManager = EnemyManager();
-    add(enemyManager);
+    // // EnemyManager を追加
+    // enemyManager = EnemyManager();
+    // add(enemyManager);
 
     // Block（防御壁）配置
     makeDefenseBlock();
@@ -364,15 +365,11 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // Player（砲台）配置
     spawnPlayer();
 
-    // Enemy 配置
-    spawnEnemy();
+    // // Enemy 配置
+    // spawnEnemy();
 
-    // UFO Manager 追加
-    add(UFOManager(
-      blockSize: _blockSize,
-      shapes: ufoShape,
-      color: Colors.yellow,
-    ));
+    // // UFO Manager 追加
+    // add(UFOManager(blockSize: _blockSize, shapes: ufoShape, color: Colors.yellow));
 
     // 地面ライン
     // const int groundLineDot = 224;
@@ -385,7 +382,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     );
 
     add(groundLine);
-
 
     // 残機表示を作成（地面ラインの少し下）
     livesDisplay = LivesDisplay(lives: playerLives);
@@ -405,27 +401,71 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // ゲームエリア境界線
     final gameBorder = children.whereType<GameBorder>();
     if (gameBorder.isEmpty) {
-      add(GameBorder(
-        blockSize: _blockSize,
-        logicalWidth: baseWidth,
-        logicalHeight: baseHeight,
-      ));
+      add(GameBorder(blockSize: _blockSize, logicalWidth: baseWidth, logicalHeight: baseHeight));
     }
 
     //　デバッグ用グリッド表示
     if (showDebugGrid) {
       final debugGrids = children.whereType<DebugGrid>();
       if (debugGrids.isEmpty) {
-        add(DebugGrid(
-          blockSize: _blockSize,
-          logicalWidth: baseWidth,
-          logicalHeight: baseHeight,
-        ));
+        add(DebugGrid(blockSize: _blockSize, logicalWidth: baseWidth, logicalHeight: baseHeight));
       }
     }
 
-  }
+    // ----------------------------------------------------
+    // 3. 画面に要素が揃った状態で「READY...」演出を開始！
+    // ----------------------------------------------------
 
+    // 色々やってみたが、どうして初回起動時にブラウザの音声スタンバイが間に合わず1秒くらい遅れて開始し溜まっている進軍音が連発される。
+    // しょうがないので、以下のエフェクトかまして１秒くらい時間を稼ぐ
+
+    // ② 裏でオーディオの初期化を走らせる　起動フラグで管理してるので複数回やっても大丈夫
+    final initFuture = AudioManager().init();
+
+    // ③ 「READY...」を表示するための TextComponent を作成して画面のど真ん中に追加する
+    final readyText = TextComponent(
+      text: 'READY...',
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          fontSize: 48,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 4.0, // ちょっと文字間隔を空けるとレトロ感が出ます
+        ),
+      ),
+      anchor: Anchor.center,
+      position: size / 2, // 画面の中央に配置
+    );
+    add(readyText);
+
+    // ④ 0.8秒待つ（この間、画面には「READY...」が表示されている）  ここの前でやれば1.2秒で十分だったが直前だとちょっと足りなった。
+    // 環境によるので1.5秒くらいで確実に
+    await Future.delayed(const Duration(milliseconds: 900));
+
+    // ⑤ 文字を「GO!」に書き換える
+    readyText.text = 'GO!';
+
+    // ⑥ 万が一オーディオの初期化が終わっていなければここで確実に待ち、さらに0.4秒待つ
+    await initFuture;
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    // ⑦ 演出が終わったので「GO!」の文字を画面から消す
+    remove(readyText);
+
+    // ----------------------------------------------------
+    // 4. 「GO!」が消えた瞬間に、敵を配置（進軍開始）！
+    // ----------------------------------------------------
+
+    // EnemyManager を追加
+    enemyManager = EnemyManager();
+    add(enemyManager);
+    // Enemy 配置
+    spawnEnemy();
+    // UFO Manager 追加
+    add(UFOManager(blockSize: _blockSize, shapes: ufoShape, color: Colors.yellow));
+
+    // debugPrint("startGame end ${sw.elapsedMilliseconds}ms");
+  }
 
   /// ネクストゲーム開始処理
   void nextRound() {
@@ -459,7 +499,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     state = GameState.playing;
   }
 
-
   /// 防御ブロック配置
   void makeDefenseBlock() {
     const int blockDotWidth = 22;
@@ -488,9 +527,9 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   void spawnEnemy() {
     // 敵キャラの種類リスト
     final enemyTypes = [
-      squidShapes,   // 1段目（上）
-      crabShapes,    // 2段目
-      crabShapes,    // 3段目
+      squidShapes, // 1段目（上）
+      crabShapes, // 2段目
+      crabShapes, // 3段目
       octopusShapes, // 4段目
       octopusShapes, // 5段目（下）
     ];
@@ -522,18 +561,19 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
         final posX = spacingX * (col + 1) - _blockSize * 1.5;
         //final posY = enemyTopMargin + row * spacingY;
         final posY = enemyTopMargin + row * spacingY + initialDrop; // ゲームクリアの度に下に配置させる
-        
-        add(Enemy(
-          position: Vector2(posX, posY),
-          // blockSize: enemyBlockSize,
-          blockSize: _blockSize,
-          shapes: enemyTypes[row],   // ← 行ごとに種類が変わる
-          color: enemyColors[row],
-          score: enemyScores[row],   // 行ごとにスコア
-        ));
+
+        add(
+          Enemy(
+            position: Vector2(posX, posY),
+            // blockSize: enemyBlockSize,
+            blockSize: _blockSize,
+            shapes: enemyTypes[row], // ← 行ごとに種類が変わる
+            color: enemyColors[row],
+            score: enemyScores[row], // 行ごとにスコア
+          ),
+        );
       }
     }
-
   }
 
   /// 砲台リセット
@@ -614,13 +654,9 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // 砲台Y（ブロック下 + gap）
     final playerY = blockY + blockHeight + gapDot * _blockSize;
 
-    player = Player(
-      position: Vector2(playerX, playerY),
-      blockSize: _blockSize,
-    );
+    player = Player(position: Vector2(playerX, playerY), blockSize: _blockSize);
     add(player);
   }
-
 
   /// 残機を1つ失う
   void loseLife() {
@@ -667,7 +703,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
     // ハイスコア点滅停止
     hiScoreDisplay.stopBlink();
-    
+
     // UFO音停止
     AudioManager().stopUfo();
     print("GAME OVER");
@@ -693,7 +729,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     final groundY = groundLineDot * _blockSize;
 
     roundText.position = Vector2(
-      size.x - 10,             // 右端マージン
+      size.x - 10, // 右端マージン
       groundY + 2 * _blockSize, // 地面ラインの少し下
     );
 
@@ -713,23 +749,22 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     initialDrop = 0.0;
 
     // 全削除（自分以外）
-    children
-      .where((c) => c is! CameraComponent)
-      .toList()
-      .forEach((c) => c.removeFromParent());
+    children.where((c) => c is! CameraComponent).toList().forEach((c) => c.removeFromParent());
 
     // タイトル表示
     startMessage = StartMessage(
       size,
       gameRef: this,
-      onStart: () { startGame(); });
+      onStart: () {
+        startGame();
+      },
+    );
     add(startMessage);
 
     // フリーズ解除
     resumeEngine();
     state = GameState.title;
   }
-
 
   /// 現在のハイスコア取得
   int getHighScore() => _hiScoreBox.get('hi') ?? 0;
@@ -795,20 +830,17 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       final playerTop = player.position.y;
 
       // 敵とプレイヤーのX範囲
-      final enemyLeft  = shooter.position.x;
+      final enemyLeft = shooter.position.x;
       final enemyRight = shooter.position.x + shooter.width;
       final playerLeft = player.position.x;
       final playerRight = player.position.x + player.width;
 
       // X軸判定：横方向が少しでも重なっているか（名古屋撃ち用）
-      final isAbovePlayerX =
-          enemyRight > playerLeft &&
-          enemyLeft < playerRight;
+      final isAbovePlayerX = enemyRight > playerLeft && enemyLeft < playerRight;
 
       // Y軸判定：プレイヤー直上 2ドット以内
       final double diff = playerTop - enemyBottom;
-      final isNagoyaZone =
-          diff > 0 && diff <= nagoyaZone;
+      final isNagoyaZone = diff > 0 && diff <= nagoyaZone;
 
       // 名古屋撃ち判定
       if (isAbovePlayerX && isNagoyaZone) {
@@ -819,7 +851,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       // 発射
       shooter.shoot();
     }
-
   }
 
   /// 画面上の下列の敵を取得
@@ -836,8 +867,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       //     enemy.position.y > bottomEnemiesMap[columnX]!.position.y) {
       //   bottomEnemiesMap[columnX] = enemy;
       // }
-      if (!bottomEnemiesMap.containsKey(columnKey) ||
-          enemy.position.y > bottomEnemiesMap[columnKey]!.position.y) {
+      if (!bottomEnemiesMap.containsKey(columnKey) || enemy.position.y > bottomEnemiesMap[columnKey]!.position.y) {
         bottomEnemiesMap[columnKey] = enemy;
       }
     }
@@ -845,17 +875,13 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     return bottomEnemiesMap.values.toList();
   }
 
-
-
-
   void addTouchControls() {
-
     // 下の余白やボタンサイズを blockSize に応じて計算
-    final bottomMargin  = 2 * _blockSize;        // ブロック2個分の余白
-    final buttonWidth   = 68 * _blockSize;       // 幅40ブロック分
-    final buttonHeight  = 12 * _blockSize;       // 高さ12ブロック分
-    final buttonSpacing = 4 * _blockSize;        // 左右ボタンの間隔
-    final sideMargin    = 2 * _blockSize;        // 左右端からのマージン
+    final bottomMargin = 2 * _blockSize; // ブロック2個分の余白
+    final buttonWidth = 68 * _blockSize; // 幅40ブロック分
+    final buttonHeight = 12 * _blockSize; // 高さ12ブロック分
+    final buttonSpacing = 4 * _blockSize; // 左右ボタンの間隔
+    final sideMargin = 2 * _blockSize; // 左右端からのマージン
     final y = size.y - buttonHeight / 2 - bottomMargin; // ボタン中心位置
 
     // 左
@@ -900,9 +926,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       ),
     );
   }
-
 }
-
 
 /// GAME OVER画面
 class GameOverMessage extends PositionComponent with TapCallbacks {
@@ -913,10 +937,10 @@ class GameOverMessage extends PositionComponent with TapCallbacks {
   // bool _visible = true;
 
   GameOverMessage(Vector2 gameSize, {required this.onRestart, required this.gameRef})
-      : super(
-          position: Vector2.zero(),
-          size: gameSize, // 画面全体をタップ判定に
-        );
+    : super(
+        position: Vector2.zero(),
+        size: gameSize, // 画面全体をタップ判定に
+      );
 
   @override
   Future<void> onLoad() async {
@@ -955,10 +979,10 @@ class StartMessage extends PositionComponent with TapCallbacks {
   final InvaderGame gameRef;
 
   StartMessage(Vector2 gameSize, {required this.onStart, required this.gameRef})
-      : super(
-          position: Vector2.zero(),
-          size: gameSize, // フルスクリーンタップ判定
-        );
+    : super(
+        position: Vector2.zero(),
+        size: gameSize, // フルスクリーンタップ判定
+      );
 
   @override
   Future<void> onLoad() async {
@@ -981,10 +1005,14 @@ class StartMessage extends PositionComponent with TapCallbacks {
     add(_text);
 
     // 点滅タイマー
-    _blinkTimer = Timer(0.5, repeat: true, onTick: () {
-      _visible = !_visible;
-      _text.text = _visible ? 'PRESS ENTER TO START' : '';
-    });
+    _blinkTimer = Timer(
+      0.5,
+      repeat: true,
+      onTick: () {
+        _visible = !_visible;
+        _text.text = _visible ? 'PRESS ENTER TO START' : '';
+      },
+    );
     _blinkTimer.start();
   }
 
@@ -1000,11 +1028,9 @@ class StartMessage extends PositionComponent with TapCallbacks {
   }
 }
 
-
-
-
 /// ボタンの種類
 enum ButtonType { left, right, fire }
+
 /// タッチ操作用ボタンコンポーネント
 class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
   final VoidCallback onDown;
@@ -1047,7 +1073,7 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
     _borderPaint
       ..color = borderColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;      
+      ..strokeWidth = 3;
     canvas.drawRect(rect, _borderPaint);
 
     // 矢印／アイコン描画
@@ -1100,14 +1126,12 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
 
     // 背景
     final bgPaint = Paint()
-      ..color = pressed
-          ? Colors.black.withValues(alpha: 0.35)
-          : Colors.black.withValues(alpha:0.25)
+      ..color = pressed ? Colors.black.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.25)
       ..style = PaintingStyle.fill;
 
     // 枠
     final borderPaint = Paint()
-      ..color = Colors.black.withValues(alpha:0.6)
+      ..color = Colors.black.withValues(alpha: 0.6)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
@@ -1116,7 +1140,7 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
 
     // 中央の発射ドット
     final dotPaint = Paint()
-      ..color = Colors.black.withValues(alpha:0.9)
+      ..color = Colors.black.withValues(alpha: 0.9)
       ..style = PaintingStyle.fill;
 
     canvas.drawCircle(center, radius * 0.35, dotPaint);
@@ -1158,8 +1182,4 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
     _pressed = false;
     onUp();
   }
-
 }
-
-
-
