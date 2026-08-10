@@ -261,11 +261,11 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     final gameWidth = baseWidth * _blockSize;
     final gameHeight = baseHeight * _blockSize;
 
-    final scaleX = size.x / gameWidth;
-    final scaleY = size.y / gameHeight;
+    // final scaleX = size.x / gameWidth;
+    // final scaleY = size.y / gameHeight;
 
     // アスペクト比を保つため小さい方を採用
-    final scale = scaleX < scaleY ? scaleX : scaleY;
+    // final scale = scaleX < scaleY ? scaleX : scaleY;
 
     if (isMobile) {
       // ★ 全自動でアスペクト比を保ちつつ、画面内にピッタリ収まるように縮小・拡大するカメラをセット

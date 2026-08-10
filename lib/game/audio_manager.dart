@@ -139,12 +139,21 @@ class AudioManager {
     final pool = _invaderPools[_stepIndex];
 
     unawaited(
-      pool.start(volume: masterVolume).catchError((e) {
-        debugPrint('invader step error: $e');
-      }),
+      // pool.start(volume: masterVolume).catchError((e) {
+      //   debugPrint('invader step error: $e');
+      // }),
+      _playInvaderStep(pool),
     );
 
     _stepIndex = (_stepIndex + 1) % _invaderPools.length;
+  }
+
+  Future<void> _playInvaderStep(AudioPool pool) async {
+    try {
+      await pool.start(volume: masterVolume);
+    } catch (e) {
+      debugPrint('invader step error: $e');
+    }
   }
 
   void playShoot() {
