@@ -427,7 +427,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       text: 'READY...',
       textRenderer: TextPaint(
         style: const TextStyle(
-          fontSize: 48,
+          fontSize: 60,
           color: Colors.white,
           fontWeight: FontWeight.bold,
           letterSpacing: 4.0, // ちょっと文字間隔を空けるとレトロ感が出ます
@@ -980,7 +980,7 @@ class GameOverMessage extends PositionComponent with TapCallbacks {
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.red,
-          fontSize: 12 * gameRef.textScale, //48,
+          fontSize: 16 * gameRef.textScale, //48,
           fontWeight: FontWeight.bold,
           backgroundColor: Colors.black,
         ),
@@ -1022,7 +1022,7 @@ class StartMessage extends PositionComponent with TapCallbacks {
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.white,
-          fontSize: 11 * gameRef.textScale, //32,
+          fontSize: 16 * gameRef.textScale, //32,
           fontFamily: 'Courier',
           fontWeight: FontWeight.bold,
         ),

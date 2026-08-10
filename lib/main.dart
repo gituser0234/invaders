@@ -83,7 +83,10 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Volume', style: TextStyle(color: Colors.white)),
+            const Text(
+              'Volume',
+              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             Slider(
               value: _volume,
               min: 0,
