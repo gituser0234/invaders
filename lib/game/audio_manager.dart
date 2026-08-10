@@ -1,9 +1,7 @@
 ﻿import 'dart:async';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 
 class AudioManager {
   // クラスのインスタンスを保持するプライベートな静的変数
@@ -18,8 +16,7 @@ class AudioManager {
   // 進軍効果音用
   // late AudioPlayer _invaderStepPlayer;
   // late final List<AudioPlayer> _invaderPlayers;
-  late final List<List<AudioPlayer>> _invaderPlayers;
-
+  // late final List<List<AudioPlayer>> _invaderPlayers;
   late final List<AudioPool> _invaderPools = [];
 
   int _stepIndex = 0;
@@ -27,6 +24,7 @@ class AudioManager {
   // bool _ufoPlaying = false;
 
   // final List<String> _invaderSteps = ['sounds/80.mp3', 'sounds/120.mp3', 'sounds/150.mp3', 'sounds/mp3.wav'];
+  // AudioPool はデフォルト　assets\audio\　らしい
   final List<String> _invaderSteps = ['80.wav', '120.wav', '150.wav', '120.wav'];
 
   double masterVolume = 1.0;
@@ -42,7 +40,7 @@ class AudioManager {
   // ];
 
   // int _stepIndex = 0;
-  int _poolIndex = 0;
+  // int _poolIndex = 0;
 
   // 初期化フラグ
   bool _initialized = false;
@@ -75,7 +73,7 @@ class AudioManager {
           usageType: AndroidUsageType.assistanceSonification,
         ),
         // iOSはまだ未確認
-        iOS: AudioContextIOS(category: AVAudioSessionCategory.ambient, options: {AVAudioSessionOptions.mixWithOthers}),
+        iOS: AudioContextIOS(category: AVAudioSessionCategory.playback, options: {AVAudioSessionOptions.mixWithOthers}),
       );
 
       await AudioPlayer.global.setAudioContext(audioContext);
@@ -102,18 +100,6 @@ class AudioManager {
     await _ufo4loopPlayer.setReleaseMode(ReleaseMode.loop);
     _ufo4loopPlayer.setVolume(1.0);
 
-    // _invaderPlayers = [];
-    // for (final path in _invaderSteps) {
-    //   final list = <AudioPlayer>[];
-    //   for (int i = 0; i < 2; i++) {
-    //     final p = AudioPlayer();
-    //     await p.setReleaseMode(ReleaseMode.stop);
-    //     await p.setVolume(0.8);
-    //     list.add(p);
-    //   }
-    //   _invaderPlayers.add(list);
-    // }
-
     for (final path in _invaderSteps) {
       // final pool = await FlameAudio.createPool(path.replaceFirst('sounds/', ''), minPlayers: 1, maxPlayers: 2);
       final pool = await FlameAudio.createPool(path, minPlayers: 1, maxPlayers: 2);
@@ -129,37 +115,7 @@ class AudioManager {
       _hitUfoPlayer.setSource(AssetSource('sounds/hit_ufo.mp3')),
     ];
 
-    // for (int i = 0; i < _invaderSteps.length; i++) {
-    //   for (int j = 0; j < 2; j++) {
-    //     loadFutures.add(_invaderPlayers[i][j].setSource(AssetSource(_invaderSteps[i])));
-    //   }
-    // }
-
     await Future.wait(loadFutures);
-
-    /*
-    // =========================================================================
-    // 3. 【最重要】ブラウザの音声デコードを完全に終わらせるためのウォームアップ
-    // =========================================================================
-    // 初期化の最後で一瞬だけ裏で再生してすぐ止めることで、準備を強制的に完了させます
-    final warmUpFutures = <Future>[
-      _shootPlayer.play(AssetSource('sounds/shoot.mp3')).then((_) => _shootPlayer.stop()).catchError((e) {}),
-      _explosionPlayer.play(AssetSource('sounds/explosion.mp3')).then((_) => _explosionPlayer.stop()).catchError((e) {}),
-      _hitPlayer.play(AssetSource('sounds/hit.mp3')).then((_) => _hitPlayer.stop()).catchError((e) {}),
-      _hitUfoPlayer.play(AssetSource('sounds/hit_ufo.mp3')).then((_) => _hitUfoPlayer.stop()).catchError((e) {}),
-    ];
-
-    for (final list in _invaderPlayers) {
-      for (final p in list) {
-        warmUpFutures.add(p.resume().then((_) => p.stop()).catchError((e) {}));
-      }
-    }
-
-    // ウォームアップが完了するのを一瞬だけ待つ（一瞬で終わります）
-    await Future.wait(warmUpFutures);
-
-    debugPrint("AudioManager init end (Warmed up)");
-*/
   }
 
   void setMasterVolume(double value) {
@@ -180,25 +136,6 @@ class AudioManager {
 
   // 進軍効果音再生
   Future<void> playInvaderStep() async {
-    /*
-    final players = _invaderPlayers[_stepIndex];
-
-    final player = players[_poolIndex];
-
-    unawaited(
-      // player.seek(Duration.zero).then((_) => player.resume()).catchError((e) {
-      player.stop().then((_) => player.resume()).catchError((e) {
-        debugPrint(e.toString());
-      }),
-    );
-
-    // 次の音
-    _stepIndex = (_stepIndex + 1) % _invaderPlayers.length;
-
-    // 同じ音は次回は別プレイヤー
-    _poolIndex ^= 1;
-*/
-
     final pool = _invaderPools[_stepIndex];
 
     unawaited(
@@ -210,80 +147,21 @@ class AudioManager {
     _stepIndex = (_stepIndex + 1) % _invaderPools.length;
   }
 
-  // void playInvaderStep() {
-  //   final path = _invaderSteps[_stepIndex];
-
-  //   // _invaderStepPlayer.play(AssetSource(path));
-
-  //   unawaited(_invaderStepPlayer.seek(Duration.zero).then((_) => _invaderStepPlayer.resume()).catchError((e) {})); // サウンドを再生
-
-  //   // ★ 60ms で強制停止（重要）
-  //   Future.delayed(const Duration(milliseconds: 100), () {
-  //     // _invaderStepPlayer.stop();
-  //   });
-
-  //   _stepIndex = (_stepIndex + 1) % 4;
-  // }
-
-  /*
-  void playInvaderStep() {
-    final path = _invaderSteps[_stepIndex];
-    playSE(path, volume: 0.8);
-
-    _stepIndex = (_stepIndex + 1) % _invaderSteps.length;
-  }
-*/
-  /*
-  void playInvaderStepWithEnemies(int enemyCount) {
-    final pitch = getPitchIndex(enemyCount);
-
-    // 4拍子ローテーション（本家感）
-    final path = _invaderSteps[(pitch + _stepIndex) % _invaderSteps.length];
-
-    playSE(path, volume: 0.8);
-
-    _stepIndex = (_stepIndex + 1) % 4;
-  }
-*/
   void playShoot() {
-    // _shootPlayer.play('shoot.mp3');
-    // unawaited(
-    //   _shootPlayer.play(AssetSource('sounds/shoot.mp3')).catchError((e) {
-    //     // AbortError は無視
-    //   }),
-    // ); // サウンドを再生
-
-    // debugPrint("before state=${_shootPlayer.state}");
-
     unawaited(
       _shootPlayer.seek(Duration.zero).then((_) => _shootPlayer.resume()).catchError((e, s) {
         debugPrint("shoot error=$e");
         debugPrint("$s");
       }),
     );
-
-    // debugPrint("masterVolume=$masterVolume");
-    // playSE('sounds/shoot.mp3');
   }
 
   void playExplosion() {
-    // unawaited(
-    //   _explosionPlayer.play(AssetSource('sounds/explosion.mp3')).catchError((e) {
-    //     // AbortError は無視
-    //   }),
-    // ); // サウンドを再生
     unawaited(_explosionPlayer.seek(Duration.zero).then((_) => _explosionPlayer.resume()).catchError((e) {})); // サウンドを再生
-    // playSE('sounds/explosion.mp3');
   }
 
   void enemyHit() {
-    // unawaited(
-    //   _hitPlayer.play(AssetSource('sounds/hit.mp3')).catchError((e) {
-    //     // AbortError は無視
-    //   }),
-    // ); // サウンドを再生
     unawaited(_hitPlayer.seek(Duration.zero).then((_) => _hitPlayer.resume()).catchError((e) {})); // サウンドを再生
-    // playSE('sounds/hit.mp3');
   }
 
   void playHitUfo() {
@@ -297,15 +175,12 @@ class AudioManager {
   }
 
   void playUfo() {
-    // if (_ufoPlaying) return;
-    // _ufoPlaying = true;
     _ufo4loopPlayer.play(AssetSource('sounds/ufo.mp3')).catchError((e) {
       // AbortError は無視
     }); // サウンドを再生
   }
 
   void stopUfo() {
-    // _ufoPlaying = false;
     _ufo4loopPlayer.stop();
   }
 
@@ -326,10 +201,12 @@ class AudioManager {
     }
   }
 */
+  /*
   int getPitchIndex(int enemyCount) {
     if (enemyCount > 40) return 0; // 低音
     if (enemyCount > 25) return 1;
     if (enemyCount > 10) return 2;
     return 3; // 高音
   }
+  */
 }

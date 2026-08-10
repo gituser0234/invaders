@@ -268,17 +268,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     final scale = scaleX < scaleY ? scaleX : scaleY;
 
     if (isMobile) {
-      // // スマホは画面に合わせてスケーリング
-      // camera.viewfinder.zoom = scale;
-      // // ★ 中央寄せ（これが効く）
-      // camera.viewfinder.anchor = Anchor.center;
-      // camera.viewfinder.position = Vector2(gameWidth / 2, gameHeight / 2);
-
-      // ★ スマホ用：解像度を固定するビューポートを設定
-      // これだけで、どんな画面サイズ・比率のスマホ（エミュレータ含む）でも
-      // 自動でアスペクト比を維持して最大まで拡大し、画面中央に配置してくれます。
-      // camera.viewport = FixedResolutionViewport(resolution: Vector2(gameWidth, gameHeight));
-
       // ★ 全自動でアスペクト比を保ちつつ、画面内にピッタリ収まるように縮小・拡大するカメラをセット
       camera = CameraComponent.withFixedResolution(width: gameWidth, height: gameHeight);
 
@@ -319,22 +308,11 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     return KeyEventResult.handled;
   }
 
-  // Future<void> testAudio() async {
-  //   try {
-  //     debugPrint('80.mp3 鳴らすよ');
-  //     await FlameAudio.play('80.wav');
-  //     debugPrint('80.mp3 OK');
-  //   } catch (e) {
-  //     debugPrint('80.mp3 ERROR: $e');
-  //   }
-  // }
-
   /// ゲーム開始処理
   Future<void> startGame() async {
     // final sw = Stopwatch()..start();
 
     // debugPrint("startGame start");
-    // await testAudio();
 
     startMessage.removeFromParent(); // タイトル消去
 
@@ -342,7 +320,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // 2. 【先に】ゲームの基本要素（UI・自機・壁）を画面に配置する
     // ----------------------------------------------------
 
-    print("state:      $state");
+    // print("state:      $state");
     // ゲームクリア処理対応
     if (state != GameState.playing) {
       state = GameState.playing;
