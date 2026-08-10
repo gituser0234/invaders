@@ -44,76 +44,6 @@ Future<void> main() async {
       ),
     ),
   );
-
-  /*
-  runApp(
-    Center(
-      child: SizedBox(
-        width: 896,  // baseWidth * _blockSize
-        height: 1024, // baseHeight * _blockSize
-        child: GameWidget(
-          game: InvaderGame(),
-          overlayBuilderMap: {
-            'TouchUI': (context, game) => TouchControls(game: game as InvaderGame),
-          },
-          initialActiveOverlays: ['TouchUI'],
-        ),
-      ),
-    ),
-  );
-*/
-
-  /*
-  runApp(
-    Center(
-      child: SizedBox(
-        width: 224 * 4.toDouble(),   // baseWidth * _blockSize
-        height: 256 * 4.toDouble(),  // baseHeight * _blockSize
-        child: GameWidget(
-          game: InvaderGame(),
-        ),
-      ),
-    ),
-  );
-*/
-
-  /*
-  runApp(
-    LayoutBuilder(
-      builder: (context, constraints) {
-        // 論理ゲームサイズ
-        const baseWidth = 224;
-        const baseHeight = 256;
-        const blockSize = 4; // 常に固定
-
-        final gameWidth = baseWidth * blockSize;   // 896
-        final gameHeight = baseHeight * blockSize; // 1024
-
-        final screenWidth = constraints.maxWidth;
-        final screenHeight = constraints.maxHeight;
-
-        // アスペクト比を保った縮小スケール
-        final scaleX = screenWidth / gameWidth;
-        final scaleY = screenHeight / gameHeight;
-        final scale = scaleX < scaleY ? scaleX : scaleY;
-
-        return Center(
-          child: SizedBox(
-            width: gameWidth.toDouble(),
-            height: gameHeight.toDouble(),
-            child: Transform.scale(
-              scale: scale < 1.0 ? scale : 1.0, // 1.0以上は拡大せず
-              alignment: Alignment.topLeft,      // 左上基準で縮小
-              child: GameWidget(
-                game: InvaderGame(),
-              ),
-            ),
-          ),
-        );
-      },
-    ),
-  );
-*/
 }
 
 /// Flutter側：スライダーを表示するウィジェット
@@ -144,10 +74,10 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
     final bottom = screenHeight - groundY; // groundY から下までの距離
 
     return Positioned(
-      left: 8, // 左寄せ
+      left: 80, //8, // 左寄せ
       bottom: bottom, // 地面ラインにぴったり
       child: Container(
-        width: 200,
+        width: 220,
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(8)),
         child: Column(

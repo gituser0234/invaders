@@ -61,7 +61,8 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
     }
 
     // 敵取得
-    final enemies = game.children.whereType<Enemy>().toList();
+    // final enemies = game.children.whereType<Enemy>().toList();
+    final enemies = game.world.children.whereType<Enemy>().toList();
 
     final currentEnemies = enemies.length;
 
@@ -135,7 +136,8 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
       }
 
       // 敵が盾の上にいる場合、毎フレーム削る
-      for (final block in game.children.whereType<DefenseBlock>()) {
+      for (final block in game.world.children.whereType<DefenseBlock>()) {
+        // for (final block in game.children.whereType<DefenseBlock>()) {
         final enemyRect = Rect.fromLTWH(e.x, e.y, e.width, e.height);
         block.hitFromWorld(enemyRect); // 既存のメソッドをそのまま使う
       }

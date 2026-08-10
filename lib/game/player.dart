@@ -9,9 +9,7 @@ import 'package:invaders/game/invader_game.dart';
 import 'bullet.dart';
 
 ///  Player（砲台）
-class Player extends PositionComponent 
-    with HasGameReference<InvaderGame>, CollisionCallbacks {
-
+class Player extends PositionComponent with HasGameReference<InvaderGame>, CollisionCallbacks {
   final double blockSize; // 外部から渡す
 
   bool canShoot = true; // 弾が消えたら true に戻す
@@ -19,11 +17,11 @@ class Player extends PositionComponent
 
   // 砲台
   static const List<List<int>> playerShape = [
-    [0,0,0,0,1,1,1,0,0,0,0],  // 上部
-    [0,0,1,1,1,1,1,1,1,0,0],  // 2段目
-    [1,1,1,1,1,1,1,1,1,1,1],  // 中央（弾が出る部分）
-    [1,1,1,1,1,1,1,1,1,1,1],  // 4段目
-    [1,1,1,1,1,1,1,1,1,1,1],  // 下段
+    [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0], // 上部
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0], // 2段目
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // 中央（弾が出る部分）
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // 4段目
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], // 下段
   ];
 
   static const int dotWidth = 11;
@@ -37,7 +35,6 @@ class Player extends PositionComponent
   bool isDead = false;
 
   final Paint paint = Paint()..color = Colors.blue;
-
 
   /// コンストラクタ
   Player({required Vector2 position, required this.blockSize}) : super(position: position) {
@@ -61,10 +58,7 @@ class Player extends PositionComponent
     for (int y = 0; y < playerShape.length; y++) {
       for (int x = 0; x < playerShape[y].length; x++) {
         if (playerShape[y][x] == 1) {
-          canvas.drawRect(
-            Rect.fromLTWH(x*blockSize, y*blockSize, blockSize, blockSize),
-            paint,
-          );
+          canvas.drawRect(Rect.fromLTWH(x * blockSize, y * blockSize, blockSize, blockSize), paint);
         }
       }
     }
@@ -84,10 +78,7 @@ class Player extends PositionComponent
 
   /// 画面からはみ出ないようにする
   void _clampToScreen() {
-    position.x = position.x.clamp(
-      0.0,
-      game.baseWidth * blockSize - size.x,
-    );
+    position.x = position.x.clamp(0.0, game.baseWidth * blockSize - size.x);
   }
 
   /// 砲撃
@@ -95,15 +86,12 @@ class Player extends PositionComponent
     if (!canShoot) return;
     // シュート音を再生
     AudioManager().playShoot();
-    
-    final bullet = Bullet(
-      owner: this,
-      position: Vector2(position.x + size.x / 2 - 1, position.y - 5),
-    );
-    game.add(bullet);
+
+    final bullet = Bullet(owner: this, position: Vector2(position.x + size.x / 2 - 1, position.y - 5));
+    // game.add(bullet);
+    game.world.add(bullet);
     canShoot = false; // 弾が出ている間は発射不可（フラグ更新はbullet側で更新）
   }
-
 
   /// 被弾処理
   void hit() {
@@ -115,7 +103,8 @@ class Player extends PositionComponent
     print("Player hit!");
 
     // 爆発エフェクト
-    game.add(Explosion(position: position.clone()));
+    // game.add(Explosion(position: position.clone()));
+    game.world.add(Explosion(position: position.clone()));
 
     // プレイヤー消滅
     removeFromParent();
@@ -123,22 +112,17 @@ class Player extends PositionComponent
     // ゲーム側の残機処理
     game.loseLife();
   }
-
 }
-
 
 /// プレーヤー残機のアイコン表示用コンポーネント
 class PlayerLifeIcon extends PositionComponent {
   final double blockSize;
-  
+
   final List<List<int>> shape;
   final paint = Paint()..color = Colors.green;
 
   PlayerLifeIcon({required this.blockSize, required this.shape}) {
-    size = Vector2(
-      Player.dotWidth * blockSize,
-      Player.dotHeight * blockSize,
-    );
+    size = Vector2(Player.dotWidth * blockSize, Player.dotHeight * blockSize);
     anchor = Anchor.topLeft;
   }
 
@@ -146,19 +130,10 @@ class PlayerLifeIcon extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
 
-
     for (int y = 0; y < shape.length; y++) {
       for (int x = 0; x < shape[y].length; x++) {
         if (shape[y][x] == 1) {
-          canvas.drawRect(
-            Rect.fromLTWH(
-              x * blockSize,
-              y * blockSize,
-              blockSize,
-              blockSize,
-            ),
-            paint,
-          );
+          canvas.drawRect(Rect.fromLTWH(x * blockSize, y * blockSize, blockSize, blockSize), paint);
         }
       }
     }

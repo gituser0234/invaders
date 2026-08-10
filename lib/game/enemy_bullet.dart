@@ -4,32 +4,24 @@ import 'package:invaders/game/defense_block.dart';
 import 'package:invaders/game/invader_game.dart';
 import 'package:invaders/game/player.dart';
 
-
 /// 敵砲弾
 // class EnemyBullet extends PositionComponent with CollisionCallbacks, HasGameReference<InvaderGame> {
 class EnemyBullet extends RectangleComponent with CollisionCallbacks, HasGameReference<InvaderGame> {
-
   // final double speed = 320.0; //300.0 ~ 420.0;
   double speed = 0; //弾スピード　300.0 ~ 420.0;
   // late Vector2 previousPosition; //高速移動によるすり抜け防止（トンネリング対策）
   static const double bulletWidth = 1;
   static const double bulletHeight = 3;
 
-
   /// コンストラクタ
-  EnemyBullet({required Vector2 position})
-      : super(position: position);
-      
+  EnemyBullet({required Vector2 position}) : super(position: position);
 
   @override
   void onLoad() {
     super.onLoad();
     speed = 80.0 * game.blockSize;
 
-    size = Vector2(
-      bulletWidth * game.blockSize,
-      bulletHeight * game.blockSize,
-    );
+    size = Vector2(bulletWidth * game.blockSize, bulletHeight * game.blockSize);
     add(RectangleHitbox());
     // previousPosition = position.clone();
   }
@@ -41,7 +33,8 @@ class EnemyBullet extends RectangleComponent with CollisionCallbacks, HasGameRef
     final current = position.clone();
     final nextPosition = current + Vector2(0, speed * dt);
     // ブロックヒット判定
-    for (final block in game.children.whereType<DefenseBlock>()) {
+    for (final block in game.world.children.whereType<DefenseBlock>()) {
+      // for (final block in game.children.whereType<DefenseBlock>()) {
       if (block.hitLine(current, nextPosition, bulletHeight: size.y)) {
         removeFromParent();
         break;
@@ -70,8 +63,6 @@ class EnemyBullet extends RectangleComponent with CollisionCallbacks, HasGameRef
     if (other is Player) {
       other.hit();
       removeFromParent();
-    } 
-
+    }
   }
 }
-

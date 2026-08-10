@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:invaders/game/enemy_bullet.dart';
 import 'package:invaders/game/invader_game.dart';
 
-
-
 ///　敵　インベーダー
-class Enemy extends PositionComponent with HasGameReference<InvaderGame>{
-// class Enemy extends PositionComponent with CollisionCallbacks, HasGameReference<InvaderGame>{
+class Enemy extends PositionComponent with HasGameReference<InvaderGame> {
+  // class Enemy extends PositionComponent with CollisionCallbacks, HasGameReference<InvaderGame>{
   final double blockSize;
   final List<List<List<int>>> shapes;
-  final Color color;         // ★ 敵の色を外から指定
+  final Color color; // ★ 敵の色を外から指定
   int shapeIndex = 0;
   late final Paint paint;
 
@@ -25,20 +23,16 @@ class Enemy extends PositionComponent with HasGameReference<InvaderGame>{
     required Vector2 position,
     required this.blockSize,
     required this.shapes,
-    required this.color,     // ★ 必須パラメータに
-    required this.score,  // 必須に
+    required this.color, // ★ 必須パラメータに
+    required this.score, // 必須に
   }) : super(position: position) {
     anchor = Anchor.topLeft; // ★これを追加
     paint = Paint()..color = color;
 
-    size = Vector2(
-      shapes[0][0].length * blockSize,
-      shapes[0].length * blockSize,
-    );
+    size = Vector2(shapes[0][0].length * blockSize, shapes[0].length * blockSize);
     // 衝突判定用の矩形を追加
     add(RectangleHitbox());
   }
-  
 
   @override
   void update(double dt) {
@@ -53,17 +47,23 @@ class Enemy extends PositionComponent with HasGameReference<InvaderGame>{
 
   /// 攻撃
   void shoot() {
+    // debugPrint("EnemyBullet  shoot     ");
     // 画面上の敵弾が最大3発まで
-    final currentEnemyBullets = game.children.whereType<EnemyBullet>().length;
+    // final currentEnemyBullets = game.children.whereType<EnemyBullet>().length;
+    final currentEnemyBullets = game.world.children.whereType<EnemyBullet>().length;
     if (currentEnemyBullets >= 3) return;
 
     // 弾の X 座標を敵中央に
     final bulletX = position.x + (size.x - EnemyBullet.bulletWidth) / 2; // 弾の幅が4なら中央に合わせる
     final bulletY = position.y + size.y;
+    // final bulletX = position.x + (size.x - EnemyBullet.bulletWidth) / 2; // 弾の幅が4なら中央に合わせる
+    // final bulletY = position.y + size.y;
 
     final bullet = EnemyBullet(position: Vector2(bulletX, bulletY));
-    game.add(bullet);
+    // game.add(bullet);
+    game.world.add(bullet);
 
+    // debugPrint("bulletX  $bulletX   bulletY  $bulletY      ");
   }
 
   @override
@@ -75,18 +75,9 @@ class Enemy extends PositionComponent with HasGameReference<InvaderGame>{
       final lenY = shape[y].length;
       for (int x = 0; x < lenY; x++) {
         if (shape[y][x] == 1) {
-          canvas.drawRect(
-            Rect.fromLTWH(
-              x * blockSize,
-              y * blockSize,
-              blockSize,
-              blockSize,
-            ),
-            paint,
-          );
+          canvas.drawRect(Rect.fromLTWH(x * blockSize, y * blockSize, blockSize, blockSize), paint);
         }
       }
     }
   }
-  
 }

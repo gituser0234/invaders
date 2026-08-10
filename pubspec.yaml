@@ -76,6 +76,10 @@ flutter:
     - assets/sounds/80.wav
     - assets/sounds/120.wav
     - assets/sounds/150.wav
+    - assets/audio/
+    - assets/audio/80.mp3
+    - assets/audio/120.mp3
+    - assets/audio/150.mp3
 
 
 
