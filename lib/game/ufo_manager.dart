@@ -45,7 +45,7 @@ class UFOManager extends Component with HasGameReference<InvaderGame> {
     ufoLeftX = -ufoWidth - margin; // 左端は完全に画面外
     ufoRightX = worldWidth + margin; // 右端はゲームエリア右端ちょっと外
     // 出現Y位置（ゲームエリア内の相対位置）
-    ufoY = worldHeight * 0.065;
+    ufoY = worldHeight * 0.067; //0.065;
     //　UFOの出現間隔を初期化
     nextSpawnTime = 20 + Random().nextDouble() * 10; // 本家に近い間隔。ショット数は数えないでランダムで調整
   }

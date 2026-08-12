@@ -102,7 +102,8 @@ class AudioManager {
 
     for (final path in _invaderSteps) {
       // final pool = await FlameAudio.createPool(path.replaceFirst('sounds/', ''), minPlayers: 1, maxPlayers: 2);
-      final pool = await FlameAudio.createPool(path, minPlayers: 1, maxPlayers: 2);
+      // final pool = await FlameAudio.createPool(path, minPlayers: 1, maxPlayers: 2);
+      final pool = await FlameAudio.createPool(path, minPlayers: 1, maxPlayers: 1);
 
       _invaderPools.add(pool);
     }
@@ -135,7 +136,8 @@ class AudioManager {
   }
 
   // 進軍効果音再生
-  Future<void> playInvaderStep() async {
+  void playInvaderStep() {
+    // Future<void> playInvaderStep() async {
     final pool = _invaderPools[_stepIndex];
 
     unawaited(
@@ -174,11 +176,6 @@ class AudioManager {
   }
 
   void playHitUfo() {
-    unawaited(
-      _hitUfoPlayer.play(AssetSource('sounds/hit_ufo.mp3')).catchError((e) {
-        // AbortError は無視
-      }),
-    ); // サウンドを再生
     unawaited(_hitUfoPlayer.seek(Duration.zero).then((_) => _hitUfoPlayer.resume()).catchError((e) {})); // サウンドを再生
     // playSE('sounds/hit_ufo.mp3');
   }
@@ -191,6 +188,62 @@ class AudioManager {
 
   void stopUfo() {
     _ufo4loopPlayer.stop();
+  }
+
+  // ============================================================
+  // Dispose
+  // ============================================================
+
+  Future<void> dispose() async {
+    if (!_initialized) {
+      return;
+    }
+
+    debugPrint('AudioManager dispose start');
+
+    try {
+      await _ufo4loopPlayer.dispose();
+    } catch (e) {
+      debugPrint('UFO dispose error: $e');
+    }
+
+    for (final pool in _invaderPools) {
+      try {
+        await pool.dispose();
+      } catch (e) {
+        debugPrint('Invader pool dispose error: $e');
+      }
+    }
+
+    _invaderPools.clear();
+
+    try {
+      await _shootPlayer.dispose();
+    } catch (e) {
+      debugPrint('Shoot pool dispose error: $e');
+    }
+
+    try {
+      await _explosionPlayer.dispose();
+    } catch (e) {
+      debugPrint('Explosion pool dispose error: $e');
+    }
+
+    try {
+      await _hitPlayer.dispose();
+    } catch (e) {
+      debugPrint('Hit pool dispose error: $e');
+    }
+
+    try {
+      await _hitUfoPlayer.dispose();
+    } catch (e) {
+      debugPrint('Hit UFO pool dispose error: $e');
+    }
+
+    _initialized = false;
+
+    debugPrint('AudioManager dispose complete');
   }
 
   /*

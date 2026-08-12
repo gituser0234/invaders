@@ -729,7 +729,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
         style: TextStyle(
           color: Colors.white,
           fontSize: 10 * textScale, //20,
-          fontFamily: 'Courier',
+          // fontFamily: 'Courier',
           fontWeight: FontWeight.bold,
         ),
       ),
