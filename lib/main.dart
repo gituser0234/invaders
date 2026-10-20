@@ -76,6 +76,7 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
         builder: (context, state, _) {
           return LayoutBuilder(
             builder: (context, constraints) {
+              // 固定論理サイズのゲーム画面が収まる倍率と表示領域を求める。
               final gameWidth = widget.game.baseWidth * widget.game.blockSize;
               final gameHeight = widget.game.baseHeight * widget.game.blockSize;
               final scale = math.min(
@@ -91,7 +92,9 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
               final groundY =
                   viewportTop +
                   InvaderGame.groundLineDot * widget.game.blockSize * scale;
+              // タイトルでは表示領域の左下、プレイ中は地上線の少し上に置く。
               final isTitle = state == GameState.title;
+              // 画面幅に応じて操作部品を縮小し、小さくなりすぎないよう下限を設ける。
               final controlScale = (viewportWidth / 600).clamp(0.65, 1.0);
               final bottom = isTitle
                   ? viewportBottomGap + 12 * controlScale
