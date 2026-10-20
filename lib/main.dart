@@ -92,49 +92,61 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
                   viewportTop +
                   InvaderGame.groundLineDot * widget.game.blockSize * scale;
               final isTitle = state == GameState.title;
+              final controlScale = (viewportWidth / 600).clamp(0.65, 1.0);
               final bottom = isTitle
-                  ? viewportBottomGap + 12
-                  : constraints.maxHeight - groundY + 8;
+                  ? viewportBottomGap + 12 * controlScale
+                  : constraints.maxHeight - groundY + 8 * controlScale;
               final sliderWidth = math.min(
-                220.0,
-                math.max(0.0, viewportWidth - 24),
+                220 * controlScale,
+                math.max(0.0, viewportWidth - 24 * controlScale),
               );
 
               return Stack(
                 children: [
                   Positioned(
-                    left: viewportLeft + 12,
+                    left: viewportLeft + 12 * controlScale,
                     bottom: bottom,
                     child: Container(
                       width: sliderWidth,
-                      padding: const EdgeInsets.all(2),
+                      padding: EdgeInsets.all(2 * controlScale),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8 * controlScale),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
+                          Text(
                             'Volume',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
+                              fontSize: 16 * controlScale,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          Slider(
-                            value: _volume,
-                            min: 0,
-                            max: 1,
-                            divisions: 10,
-                            label: (_volume * 100).round().toString(),
-                            activeColor: Colors.blueAccent,
-                            thumbColor: Colors.green,
-                            onChanged: (value) {
-                              setState(() => _volume = value);
-                              AudioManager().setMasterVolume(value);
-                            },
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              trackHeight: 4 * controlScale,
+                              thumbShape: RoundSliderThumbShape(
+                                enabledThumbRadius: 10 * controlScale,
+                              ),
+                              overlayShape: RoundSliderOverlayShape(
+                                overlayRadius: 16 * controlScale,
+                              ),
+                            ),
+                            child: Slider(
+                              value: _volume,
+                              min: 0,
+                              max: 1,
+                              divisions: 10,
+                              label: (_volume * 100).round().toString(),
+                              activeColor: Colors.blueAccent,
+                              thumbColor: Colors.green,
+                              onChanged: (value) {
+                                setState(() => _volume = value);
+                                AudioManager().setMasterVolume(value);
+                              },
+                            ),
                           ),
                         ],
                       ),
