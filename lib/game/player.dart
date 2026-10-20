@@ -87,7 +87,8 @@ class Player extends PositionComponent with HasGameReference<InvaderGame>, Colli
     // シュート音を再生
     AudioManager().playShoot();
 
-    final bullet = Bullet(owner: this, position: Vector2(position.x + size.x / 2 - 1, position.y - 5));
+    final bullet = Bullet(position: Vector2(position.x + size.x / 2 - 1, position.y - 5));
+    // final bullet = Bullet(owner: this, position: Vector2(position.x + size.x / 2 - 1, position.y - 5));
     // game.add(bullet);
     game.world.add(bullet);
     canShoot = false; // 弾が出ている間は発射不可（フラグ更新はbullet側で更新）

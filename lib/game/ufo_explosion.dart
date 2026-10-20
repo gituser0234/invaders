@@ -56,7 +56,8 @@ class UFOScoreDisplay extends TextComponent with HasGameReference<InvaderGame> {
   final double duration = 1.3; // 1.3秒で消える
   final Vector2 velocity = Vector2(0, -20); // 上に浮かぶ速度
 
-  UFOScoreDisplay({required String text, required Vector2 position, TextPaint? textPaint})
+  UFOScoreDisplay({required String text, required Vector2 position})
+    // UFOScoreDisplay({required String text, required Vector2 position, TextPaint? textPaint})
     : super(
         text: text,
         position: position.clone(),

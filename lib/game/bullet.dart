@@ -14,9 +14,10 @@ class Bullet extends RectangleComponent with CollisionCallbacks, HasGameReferenc
   static const double bulletHeight = 3;
 
   /// コンストラクタ
-  Bullet({required this.owner, required Vector2 position}) : super(position: position);
+  Bullet({required Vector2 position}) : super(position: position);
+  // Bullet({required this.owner, required Vector2 position}) : super(position: position);
 
-  final Player owner; // 弾の発射元プレイヤー
+  // final Player owner; // 弾の発射元プレイヤー
 
   // final Paint paint = Paint()..color = Colors.red;
   @override
@@ -26,7 +27,7 @@ class Bullet extends RectangleComponent with CollisionCallbacks, HasGameReferenc
   double speed = 150; // 弾の速度  　520.0 ~ 600.0;
 
   late Vector2 previousPosition;
-  bool hasHitBlock = false; // ブロックに当たったかどうかのフラグ
+  // bool hasHitBlock = false; // ブロックに当たったかどうかのフラグ
 
   @override
   void onLoad() {
@@ -34,7 +35,7 @@ class Bullet extends RectangleComponent with CollisionCallbacks, HasGameReferenc
 
     size = Vector2(bulletWidth * game.blockSize, bulletHeight * game.blockSize);
     // 衝突判定用の矩形を追加
-    add(RectangleHitbox()); //TODO: world使えない
+    add(RectangleHitbox());
     previousPosition = position.clone();
 
     speed = 150.0 * game.blockSize;

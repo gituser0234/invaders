@@ -11,8 +11,8 @@ class Explosion extends PositionComponent with HasGameReference {
   final List<_Fragment> _fragments = []; // ← _fragments に変更
 
   Explosion({required Vector2 position}) {
-    this.position = position.clone();        // ★これ必須
-    size = Vector2.all(0);                   // 当たり判定用ではないので 0 でOK
+    this.position = position.clone(); // ★これ必須
+    size = Vector2.all(0); // 当たり判定用ではないので 0 でOK
     anchor = Anchor.center;
   }
 
@@ -22,10 +22,10 @@ class Explosion extends PositionComponent with HasGameReference {
 
     // 上・右・下・左の4方向へ破片を飛ばす
     _fragments.addAll([
-      _Fragment(direction: Vector2(0, -1)),  // 上
-      _Fragment(direction: Vector2(1, 0)),   // 右
-      _Fragment(direction: Vector2(0, 1)),   // 下
-      _Fragment(direction: Vector2(-1, 0)),  // 左
+      _Fragment(direction: Vector2(0, -1)), // 上
+      _Fragment(direction: Vector2(1, 0)), // 右
+      _Fragment(direction: Vector2(0, 1)), // 下
+      _Fragment(direction: Vector2(-1, 0)), // 左
     ]);
 
     // Game に追加可能にする
@@ -36,6 +36,8 @@ class Explosion extends PositionComponent with HasGameReference {
 
   @override
   void update(double dt) {
+    super.update(dt);
+
     // すべての破片が消えたら、この Explosion も消す
     if (children.isEmpty) {
       removeFromParent();
@@ -44,13 +46,12 @@ class Explosion extends PositionComponent with HasGameReference {
 }
 
 /// 飛び散る破片
-class _Fragment extends PositionComponent with HasGameReference<InvaderGame>{
+class _Fragment extends PositionComponent with HasGameReference<InvaderGame> {
   final Vector2 direction;
   late final double speed;
   double lifetime = 0.19; //0.18; // 本家くらいの短さ
   final Paint paint = Paint()..color = const Color(0xFFFFFFFF);
   late final Vector2 velocity;
-
 
   _Fragment({required this.direction}) {
     // size = Vector2.all(6); // 白い小さい四角
@@ -58,7 +59,7 @@ class _Fragment extends PositionComponent with HasGameReference<InvaderGame>{
   }
 
   @override
-  Future<void> onLoad() async{
+  Future<void> onLoad() async {
     await super.onLoad();
 
     speed = 30 * game.blockSize;
@@ -66,7 +67,6 @@ class _Fragment extends PositionComponent with HasGameReference<InvaderGame>{
     anchor = Anchor.center;
     velocity = direction.normalized() * speed;
   }
-
 
   @override
   void render(Canvas canvas) {

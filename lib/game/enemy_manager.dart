@@ -12,7 +12,7 @@ import 'package:invaders/game/invader_game.dart';
 class EnemyManager extends Component with HasGameReference<InvaderGame> {
   late double step; // 1回の移動量（横）
 
-  double dropStep = 16; //8; //16;         // 端に当たったときの降下距離
+  final double dropStep = 16; // 端での基本下降量（ゲーム座標）
 
   double direction = 1; // 1:右, -1:左
 
@@ -33,7 +33,7 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
 
   // 敵進行音のタイマー
   double soundTimer = 0;
-  double soundInterval = 0.55; //0.35;
+  double soundInterval = 0.0; //0.55; //0.35;
 
   @override
   void onLoad() {
@@ -128,7 +128,8 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
     for (final e in enemies) {
       e.x += step * direction;
 
-      if ((direction < 0 && e.x <= edgeMargin) || (direction > 0 && e.x + e.width >= game.size.x - edgeMargin)) {
+      if ((direction < 0 && e.x <= edgeMargin) ||
+          (direction > 0 && e.x + e.width >= game.size.x - edgeMargin)) {
         hitEdge = true;
       }
 
@@ -140,24 +141,34 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
       }
     }
 
-    // 端に当たった → 戻す ＆ 降下 ＆ 反転
+    // 端に当たったら横移動を取り消し、隙間に合わせて下降する。
     if (hitEdge) {
       for (final e in enemies) {
-        // 反対方向に戻す（ハミ出しをリセット）
+        // 端を越えた横移動を取り消す。
         e.x -= step * direction;
-        // 下へ降りる
-        e.y += dropStep; //dropStep;
+      }
+
+      // すでに砲台に接している場合、次の下降タイミングでゲームオーバー。
+      var lowestEnemyBottom = enemies.first.y + enemies.first.height;
+      for (final enemy in enemies.skip(1)) {
+        final enemyBottom = enemy.y + enemy.height;
+        if (enemyBottom > lowestEnemyBottom) {
+          lowestEnemyBottom = enemyBottom;
+        }
+      }
+      final gap = game.player.y - lowestEnemyBottom;
+      if (gap <= 0) {
+        AudioManager().playExplosion();
+        game.onGameOver();
+        return;
+      }
+
+      // 基本下降量より隙間が小さいときは、敵の底辺を砲台の先頭に合わせる。
+      final descent = min(dropStep, gap).toDouble();
+      for (final enemy in enemies) {
+        enemy.y += descent;
       }
       direction *= -1;
-
-      // ゲームオーバー判定
-      if (enemies.any((e) => e.y + e.height >= game.player.y)) {
-        // 爆発音を再生
-        AudioManager().playExplosion();
-        // 爆発エフェクト
-        // game.add(Explosion(position: position.clone()));
-        game.onGameOver();
-      }
     }
   }
 }

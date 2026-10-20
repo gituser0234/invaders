@@ -13,6 +13,7 @@ import 'package:invaders/game/debug_grid.dart';
 import 'package:invaders/game/defense_block.dart';
 import 'package:invaders/game/enemy_bullet.dart';
 import 'package:invaders/game/enemy_manager.dart';
+import 'package:invaders/game/explosion.dart';
 import 'package:invaders/game/game_border.dart';
 import 'package:invaders/game/hiscore_display.dart';
 import 'package:invaders/game/lives_display.dart';
@@ -71,6 +72,9 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
   // Block（防御壁）ドット幅・高さ
   static const int blockDotHeight = 13;
+
+  // Block（防御壁）ドット幅・幅
+  static const int blockDotWidth = 22;
 
   // カニ
   final crabShapes = [
@@ -507,7 +511,8 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // ラウンド進行
     currentRound++;
     // 敵開始位置算出
-    initialDrop = enemyManager.dropStep * (currentRound - 1) * 2;
+    // ラウンドごとに、敵の端での下降1回分だけ開始位置を下げる。
+    initialDrop = enemyManager.dropStep * (currentRound - 1);
 
     // 1回の移動量（横）
     enemyManager.step = 1 * blockSize;
@@ -541,7 +546,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
   /// 防御ブロック配置
   void makeDefenseBlock() {
-    const int blockDotWidth = 22;
+    // const int blockDotWidth = 22;
     final blockWidth = blockDotWidth * _blockSize;
 
     // 画面中央
@@ -596,9 +601,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     final enemyTopMargin =
         size.y * 0.12; //0.15; //0.40; //0.15;   // 画面上から 15% に変更
     final spacingY = size.y * 0.05; //0.065;        // 行間を少し広げる
-
-    // 下降量算出
-    enemyManager.dropStep = _blockSize * 2; //16;
 
     // 敵配置
     for (int row = 0; row < enemyRows; row++) {
@@ -684,11 +686,11 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   void spawnPlayer() {
     // 画面中央
     final centerX = size.x / 2;
-    const int blockDotWidth = 22;
-    const int blockDotHeight = 13;
+    // const int blockDotWidth = 22;
+    // const int blockDotHeight = 13;
     final blockWidth = blockDotWidth * _blockSize;
     final blockHeight = blockDotHeight * _blockSize;
-    const int playerDotWidth = 11;
+    // const int playerDotWidth = 11;
 
     final playerWidth = playerDotWidth * _blockSize;
 
@@ -741,6 +743,11 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
     state = GameState.gameOver;
 
+    // 砲台の中心で爆発させる。
+    world.add(Explosion(position: player.position + player.size / 2));
+    // 敵の侵入によるゲームオーバーでも砲台を消す。
+    player.removeFromParent();
+
     // メッセージ
     world.add(
       // add(
@@ -753,8 +760,8 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       ),
     );
 
-    // Future.delayed(Duration(milliseconds: 50), () {
-    Future.delayed(Duration(milliseconds: 100), () {
+    // 爆発エフェクト（約0.19秒）が終わってからゲームを停止する。
+    Future.delayed(const Duration(milliseconds: 250), () {
       if (state != GameState.gameOver) return;
       pauseEngine();
     });
@@ -1002,8 +1009,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       ),
     );
   }
-
-  void addVolumeSlider() {}
 }
 
 /// GAME OVER画面

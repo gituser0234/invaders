@@ -66,7 +66,7 @@ class DefenseBlock extends PositionComponent with CollisionCallbacks {
     return false; // ヒットなし
   }
 
-  bool isEmpty() => shieldShape.every((row) => row.every((v) => v == 0));
+  // bool isEmpty() => shieldShape.every((row) => row.every((v) => v == 0));
 
   final Paint paint = Paint()..color = Colors.brown;
 
@@ -90,7 +90,7 @@ class DefenseBlock extends PositionComponent with CollisionCallbacks {
   // }
 
   void hitFromWorld(Rect enemyRect) {
-    final double blockDotSize = blockSize;
+    // final double blockDotSize = blockSize;
     const double margin = 2;
 
     final rows = shieldShape.length;
@@ -103,7 +103,7 @@ class DefenseBlock extends PositionComponent with CollisionCallbacks {
     for (int y = 0; y < rows; y++) {
       for (int x = 0; x < cols; x++) {
         if (shieldShape[y][x] == 1) {
-          final dotRect = Rect.fromLTWH(worldPos.x + x * blockDotSize, worldPos.y + y * blockDotSize, blockDotSize, blockDotSize);
+          final dotRect = Rect.fromLTWH(worldPos.x + x * blockSize, worldPos.y + y * blockSize, blockSize, blockSize);
 
           if (expandedEnemy.overlaps(dotRect)) {
             shieldShape[y][x] = 0;
