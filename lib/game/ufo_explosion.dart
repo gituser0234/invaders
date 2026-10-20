@@ -64,7 +64,7 @@ class UFOScoreDisplay extends TextComponent with HasGameReference<InvaderGame> {
         // textRenderer: textPaint ?? TextPaint(
         //   style: TextStyle(
         //     color: Colors.white,
-        //     fontSize: 4 * game.textScale, //16,
+        //     fontSize: 16,
         //     fontWeight: FontWeight.bold,
         //   ),
         // ),
@@ -78,7 +78,7 @@ class UFOScoreDisplay extends TextComponent with HasGameReference<InvaderGame> {
     textRenderer = TextPaint(
       style: TextStyle(
         color: Colors.white,
-        fontSize: 8 * game.textScale, //16,
+        fontSize: 32,
         fontWeight: FontWeight.bold,
       ),
     );

@@ -20,14 +20,14 @@ class HiScoreDisplay extends Component with HasGameReference<InvaderGame> {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // final labelFontSize = 5 * game.textScale; // labelPaintで設定したfontSize
+    // final labelFontSize = 20; // labelPaintで設定したfontSize
     final worldWidth = game.baseWidth * game.blockSize;
 
     //
     labelPaint = TextPaint(
       style: TextStyle(
         color: const Color(0xFFFFFF00), // 黄色
-        fontSize: 10 * game.textScale, //18,
+        fontSize: 40,
         fontWeight: FontWeight.bold,
       ),
     );
@@ -35,7 +35,7 @@ class HiScoreDisplay extends Component with HasGameReference<InvaderGame> {
     valuePaintVisible = TextPaint(
       style: TextStyle(
         color: const Color(0xFFFFFF00), // 黄色
-        fontSize: 10 * game.textScale, //24,
+        fontSize: 40,
         fontWeight: FontWeight.bold,
       ),
     );
@@ -43,15 +43,15 @@ class HiScoreDisplay extends Component with HasGameReference<InvaderGame> {
     valuePaintHidden = TextPaint(
       style: TextStyle(
         color: const Color(0x00FFFF00), // 透明黄色
-        fontSize: 10 * game.textScale, //16,
+        fontSize: 40,
         fontWeight: FontWeight.bold,
       ),
     );
 
     // label = TextComponent(
     //   text: 'HI-SCORE',
-    //   // position: Vector2(game.size.x / 2, 2 * game.textScale), // ブロック2個分下
-    //   position: Vector2(worldWidth / 2, 2 * game.textScale), // ブロック2個分下
+    //   // position: Vector2(game.size.x / 2, 8), // ブロック2個分下
+    //   position: Vector2(worldWidth / 2, 8), // ブロック2個分下
     //   anchor: Anchor.topCenter,
     //   textRenderer: labelPaint,
     // );
@@ -61,14 +61,14 @@ class HiScoreDisplay extends Component with HasGameReference<InvaderGame> {
     //   text: game.getHighScore().toString(),
     //   position: Vector2(
     //     worldWidth / 2,
-    //     2 * game.textScale + labelFontSize * 1.2, // 文字サイズの1.2倍下に配置
+    //     8 + labelFontSize * 1.2, // 文字サイズの1.2倍下に配置
     //   ),
     //   anchor: Anchor.topCenter,
     //   textRenderer: valuePaintVisible,
     // );
 
     final centerX = worldWidth / 2 - 40;
-    final y = 1 * game.textScale;
+    final y = 4.0;
     final gap = 4.0;
 
     label = TextComponent(text: 'HI-SCORE : ', position: Vector2(centerX, y), anchor: Anchor.topLeft, textRenderer: labelPaint);

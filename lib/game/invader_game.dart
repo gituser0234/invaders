@@ -37,8 +37,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   // class InvaderGame extends FlameGame with HasCollisionDetection, HasKeyboardHandlerComponents {
   // class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardHandler, HasTappables {
 
-  // 開発用フラグ: true → スマホ 1pxスケール, false → 開発用見やすい4pxスケール　ブラウザ
-  static const bool useHighRes = false;
   static const bool showDebugGrid = false; //true; // デバッグ用グリッド
 
   bool get isMobile =>
@@ -211,8 +209,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   /// コンストラクタ
   InvaderGame() : super() {
     //ドットサイズ
-    // _blockSize = useHighRes ? 1 : 4;
-    _blockSize = 4; // ★ 常に4で固定
+    _blockSize = 4;
 
     // camera = CameraComponent.withFixedResolution(
     //   width: baseWidth * _blockSize.toDouble(),
@@ -258,11 +255,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
     // Flame が用意している「開発用デバッグ表示」を有効化するスイッチです。
     // debugMode = true;
-  }
-
-  /// テキストスケール取得
-  double get textScale {
-    return useHighRes ? 1.0 : 4.0; // 高解像度: 1倍, 開発用: 4倍
   }
 
   /// 画面リサイズ処理
@@ -362,7 +354,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.white,
-          fontSize: 10 * textScale, //24,
+          fontSize: 40,
           // fontFamily: 'Courier',
         ),
       ),
@@ -781,7 +773,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.white,
-          fontSize: 10 * textScale, //20,
+          fontSize: 40,
           // fontFamily: 'Courier',
           fontWeight: FontWeight.bold,
         ),
@@ -1040,7 +1032,7 @@ class GameOverMessage extends PositionComponent with TapCallbacks {
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.red,
-          fontSize: 16 * gameRef.textScale, //48,
+          fontSize: 64,
           fontWeight: FontWeight.bold,
           backgroundColor: Colors.black,
         ),
@@ -1087,7 +1079,7 @@ class StartMessage extends PositionComponent with TapCallbacks {
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.white,
-          fontSize: 16 * gameRef.textScale, //32,
+          fontSize: 64,
           fontFamily: 'Courier',
           fontWeight: FontWeight.bold,
         ),
