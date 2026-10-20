@@ -477,6 +477,11 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // 敵開始位置算出
     initialDrop = enemyManager.dropStep * (currentRound - 1) * 2;
 
+    // 1回の移動量（横）
+    enemyManager.step = 1 * blockSize;
+    // 移動タイマー初期化
+    enemyManager.moveInterval = enemyManager.baseInterval; // 0.5;
+
     // 敵・UFO・弾の掃除
     removeEnemies();
     removeEnemyBullets();
@@ -684,7 +689,9 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
     // 1秒後に復活
     Future.delayed(const Duration(milliseconds: 900), () {
-      spawnPlayer();
+      if (state == GameState.playing) {
+        spawnPlayer();
+      }
     });
   }
 

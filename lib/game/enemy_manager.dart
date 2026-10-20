@@ -12,10 +12,11 @@ import 'package:invaders/game/invader_game.dart';
 class EnemyManager extends Component with HasGameReference<InvaderGame> {
   late double step; // 1回の移動量（横）
 
-  double _dropStep = 16; //8; //16;         // 端に当たったときの降下距離
+  double dropStep = 16; //8; //16;         // 端に当たったときの降下距離
 
   double direction = 1; // 1:右, -1:左
 
+  // 敵移動タイマー
   double moveInterval = 0.5; //0.4;    // 0.4秒に一回移動 → ゆっくり動く
   double timer = 0;
 
@@ -26,10 +27,6 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
 
   final baseInterval = 0.5; // 全員いるときの間隔
   final exponent = 2; //0.5;      // 0.5:平方根でやや緩やか、1:線形、2:急加速
-
-  // dropStep の setter
-  set dropStep(double value) => _dropStep = value;
-  double get dropStep => _dropStep;
 
   double clearTimer = 0;
   bool clearTriggered = false;
@@ -149,7 +146,7 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
         // 反対方向に戻す（ハミ出しをリセット）
         e.x -= step * direction;
         // 下へ降りる
-        e.y += _dropStep; //dropStep;
+        e.y += dropStep; //dropStep;
       }
       direction *= -1;
 
