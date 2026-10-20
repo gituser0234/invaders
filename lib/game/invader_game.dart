@@ -986,7 +986,7 @@ class GameOverMessage extends PositionComponent with TapCallbacks {
     await super.onLoad();
 
     _text = TextComponent(
-      text: 'GAME OVER\nPress to Restart',
+      text: gameRef.isMobile ? 'GAME OVER\n\nTap to Restart' : 'GAME OVER\n\nPress R or Click to Restart',
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.red,
@@ -1027,8 +1027,10 @@ class StartMessage extends PositionComponent with TapCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
 
+    final startPrompt = gameRef.isMobile ? 'TAP TO START' : 'PRESS\nENTER OR CLICK\nTO START';
+
     _text = TextComponent(
-      text: 'PRESS ENTER TO START',
+      text: startPrompt,
       textRenderer: TextPaint(
         style: TextStyle(
           color: Colors.white,
@@ -1045,11 +1047,11 @@ class StartMessage extends PositionComponent with TapCallbacks {
 
     // 点滅タイマー
     _blinkTimer = Timer(
-      0.5,
+      0.8,
       repeat: true,
       onTick: () {
         _visible = !_visible;
-        _text.text = _visible ? 'PRESS ENTER TO START' : '';
+        _text.text = _visible ? startPrompt : '';
       },
     );
     _blinkTimer.start();
