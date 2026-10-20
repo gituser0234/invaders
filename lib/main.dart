@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
@@ -69,41 +70,81 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    // groundY を利用してスライダーの top を計算
-    final groundY = widget.game.blockSize * InvaderGame.groundLineDot;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final bottom = screenHeight - groundY; // groundY から下までの距離
+    return Positioned.fill(
+      child: ValueListenableBuilder<GameState>(
+        valueListenable: widget.game.stateListenable,
+        builder: (context, state, _) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final gameWidth = widget.game.baseWidth * widget.game.blockSize;
+              final gameHeight = widget.game.baseHeight * widget.game.blockSize;
+              final scale = math.min(
+                constraints.maxWidth / gameWidth,
+                constraints.maxHeight / gameHeight,
+              );
+              final viewportWidth = gameWidth * scale;
+              final viewportHeight = gameHeight * scale;
+              final viewportLeft = (constraints.maxWidth - viewportWidth) / 2;
+              final viewportTop = (constraints.maxHeight - viewportHeight) / 2;
+              final viewportBottomGap =
+                  constraints.maxHeight - viewportTop - viewportHeight;
+              final groundY =
+                  viewportTop +
+                  InvaderGame.groundLineDot * widget.game.blockSize * scale;
+              final isTitle = state == GameState.title;
+              final bottom = isTitle
+                  ? viewportBottomGap + 12
+                  : constraints.maxHeight - groundY + 8;
+              final sliderWidth = math.min(
+                220.0,
+                math.max(0.0, viewportWidth - 24),
+              );
 
-    return Positioned(
-      left: 80, //8, // 左寄せ
-      bottom: bottom, // 地面ラインにぴったり
-      child: Container(
-        width: 220,
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(8)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Volume',
-              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            Slider(
-              value: _volume,
-              min: 0,
-              max: 1,
-              divisions: 10,
-              label: (_volume * 100).round().toString(),
-              activeColor: Colors.blueAccent, // スライダーの「塗られた部分」
-              // inactiveColor: Colors.grey,  // スライダーの「残り部分」
-              thumbColor: Colors.green, // つまみ（ドラッグする丸）の色
-              onChanged: (value) {
-                setState(() => _volume = value);
-                AudioManager().setMasterVolume(value);
-              },
-            ),
-          ],
-        ),
+              return Stack(
+                children: [
+                  Positioned(
+                    left: viewportLeft + 12,
+                    bottom: bottom,
+                    child: Container(
+                      width: sliderWidth,
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Volume',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Slider(
+                            value: _volume,
+                            min: 0,
+                            max: 1,
+                            divisions: 10,
+                            label: (_volume * 100).round().toString(),
+                            activeColor: Colors.blueAccent,
+                            thumbColor: Colors.green,
+                            onChanged: (value) {
+                              setState(() => _volume = value);
+                              AudioManager().setMasterVolume(value);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       ),
     );
   }

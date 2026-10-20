@@ -185,7 +185,10 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   // 残機表示用コンポーネント
   late LivesDisplay livesDisplay;
   // ゲーム状態
-  GameState state = GameState.title;
+  final ValueNotifier<GameState> _stateNotifier = ValueNotifier(GameState.title);
+  GameState get state => _stateNotifier.value;
+  set state(GameState value) => _stateNotifier.value = value;
+  ValueListenable<GameState> get stateListenable => _stateNotifier;
   // STARTメッセージ
   late StartMessage startMessage;
   // 敵管理
