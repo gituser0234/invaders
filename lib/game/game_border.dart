@@ -7,11 +7,7 @@ class GameBorder extends PositionComponent {
   final int logicalWidth;
   final int logicalHeight;
 
-  GameBorder({
-    required this.blockSize,
-    required this.logicalWidth,
-    required this.logicalHeight,
-  });
+  GameBorder({required this.blockSize, required this.logicalWidth, required this.logicalHeight});
 
   @override
   void render(Canvas canvas) {
@@ -19,15 +15,14 @@ class GameBorder extends PositionComponent {
 
     final paint = Paint()
       ..color = Colors.green
-      ..strokeWidth = 1
+      // ..strokeWidth = 1
+      ..strokeWidth =
+          blockSize // * 0.5
       ..style = PaintingStyle.stroke;
 
     final widthPx = logicalWidth * blockSize;
     final heightPx = logicalHeight * blockSize;
 
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, widthPx, heightPx),
-      paint,
-    );
+    canvas.drawRect(Rect.fromLTWH(0, 0, widthPx, heightPx), paint);
   }
 }

@@ -9,8 +9,6 @@ import 'package:invaders/game/bullet.dart';
 import 'package:invaders/game/invader_game.dart';
 import 'package:invaders/game/ufo_explosion.dart';
 
-
-
 /// UFO
 class UFO extends PositionComponent with CollisionCallbacks, HasGameReference<InvaderGame> {
   final double blockSize;
@@ -40,7 +38,6 @@ class UFO extends PositionComponent with CollisionCallbacks, HasGameReference<In
     add(RectangleHitbox());
   }
 
-
   @override
   void update(double dt) {
     super.update(dt);
@@ -55,16 +52,13 @@ class UFO extends PositionComponent with CollisionCallbacks, HasGameReference<In
         shapeIndex = (shapeIndex + 1) % shapes.length;
       }
 
-
       // ゲームエリア外に出たら削除
       if ((speed > 0 && position.x > worldWidth) || (speed < 0 && position.x + size.x < 0)) {
         AudioManager().stopUfo();
         removeFromParent();
         onUfoRemove?.call();
       }
-
     }
-
   }
 
   @override
@@ -73,7 +67,6 @@ class UFO extends PositionComponent with CollisionCallbacks, HasGameReference<In
 
     // 弾と衝突
     if (!destroyed && other is Bullet) {
-
       // 効果音再生
       AudioManager().stopUfo();
       AudioManager().playHitUfo();
@@ -85,14 +78,17 @@ class UFO extends PositionComponent with CollisionCallbacks, HasGameReference<In
       game.addScore(score);
 
       // ドット爆発エフェクト
-      game.add(UFOExplosion(position: position.clone(), blockSize: blockSize, numParticles: 12));
-
+      game.world.add(UFOExplosion(position: position.clone(), blockSize: blockSize, numParticles: 12));
+      // game.add(UFOExplosion(position: position.clone(), blockSize: blockSize, numParticles: 12));
 
       // 浮かぶスコア表示
-      game.add(UFOScoreDisplay(
-        text: score.toString(),
-        position: position.clone() + Vector2(size.x / 2, -10), // UFO の上に表示
-      ));
+      game.world.add(
+        // game.add(
+        UFOScoreDisplay(
+          text: score.toString(),
+          position: position.clone() + Vector2(size.x / 2, -10), // UFO の上に表示
+        ),
+      );
 
       other.removeFromParent();
     }
@@ -109,10 +105,7 @@ class UFO extends PositionComponent with CollisionCallbacks, HasGameReference<In
     for (int y = 0; y < shape.length; y++) {
       for (int x = 0; x < shape[y].length; x++) {
         if (shape[y][x] == 1) {
-          canvas.drawRect(
-            Rect.fromLTWH(x * blockSize, y * blockSize, blockSize, blockSize),
-            paint,
-          );
+          canvas.drawRect(Rect.fromLTWH(x * blockSize, y * blockSize, blockSize, blockSize), paint);
         }
       }
     }
@@ -124,4 +117,3 @@ class UFO extends PositionComponent with CollisionCallbacks, HasGameReference<In
     // );
   }
 }
-
