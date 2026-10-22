@@ -79,63 +79,67 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
               // 固定論理サイズのゲーム画面が収まる倍率と表示領域を求める。
               final gameWidth = widget.game.baseWidth * widget.game.blockSize;
               final gameHeight = widget.game.baseHeight * widget.game.blockSize;
-              final scale = math.min(
-                constraints.maxWidth / gameWidth,
-                constraints.maxHeight / gameHeight,
-              );
+              final scale = math.min(constraints.maxWidth / gameWidth, constraints.maxHeight / gameHeight);
               final viewportWidth = gameWidth * scale;
               final viewportHeight = gameHeight * scale;
               final viewportLeft = (constraints.maxWidth - viewportWidth) / 2;
               final viewportTop = (constraints.maxHeight - viewportHeight) / 2;
-              final viewportBottomGap =
-                  constraints.maxHeight - viewportTop - viewportHeight;
-              final groundY =
-                  viewportTop +
-                  InvaderGame.groundLineDot * widget.game.blockSize * scale;
+              final viewportBottomGap = constraints.maxHeight - viewportTop - viewportHeight;
+              final groundY = viewportTop + InvaderGame.groundLineDot * widget.game.blockSize * scale;
               // タイトルでは表示領域の左下、プレイ中は地上線の少し上に置く。
               final isTitle = state == GameState.title;
               // 画面幅に応じて操作部品を縮小し、小さくなりすぎないよう下限を設ける。
               final controlScale = (viewportWidth / 600).clamp(0.65, 1.0);
-              final bottom = isTitle
-                  ? viewportBottomGap + 12 * controlScale
-                  : constraints.maxHeight - groundY + 8 * controlScale;
-              final sliderWidth = math.min(
-                220 * controlScale,
-                math.max(0.0, viewportWidth - 24 * controlScale),
-              );
+              final bottom = isTitle ? viewportBottomGap + 12 * controlScale : constraints.maxHeight - groundY + 8 * controlScale;
+              final sliderWidth = math.min(220 * controlScale, math.max(0.0, viewportWidth - 24 * controlScale));
 
               return Stack(
                 children: [
+                  // ==========================================
+                  // 追加：上部のかっこいいタイトル表示
+                  // ==========================================
+                  Positioned(
+                    top: viewportTop + 24 * scale,
+                    left: viewportLeft,
+                    width: viewportWidth,
+                    child: Center(
+                      child: Text(
+                        'INVADER GAME',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 100 * controlScale,
+                          fontWeight: FontWeight.w900,
+                          fontStyle: FontStyle.italic,
+                          letterSpacing: 4.0 * controlScale,
+                          shadows: [
+                            Shadow(color: Colors.cyanAccent, blurRadius: 12, offset: Offset(0, 0)),
+                            Shadow(color: Colors.blue, blurRadius: 20, offset: Offset(0, 2)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 既存のボリュームスライダー
                   Positioned(
                     left: viewportLeft + 12 * controlScale,
                     bottom: bottom,
                     child: Container(
                       width: sliderWidth,
                       padding: EdgeInsets.all(2 * controlScale),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(8 * controlScale),
-                      ),
+                      decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(8 * controlScale)),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'Volume',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16 * controlScale,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 16 * controlScale, fontWeight: FontWeight.bold),
                           ),
                           SliderTheme(
                             data: SliderTheme.of(context).copyWith(
                               trackHeight: 4 * controlScale,
-                              thumbShape: RoundSliderThumbShape(
-                                enabledThumbRadius: 10 * controlScale,
-                              ),
-                              overlayShape: RoundSliderOverlayShape(
-                                overlayRadius: 16 * controlScale,
-                              ),
+                              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10 * controlScale),
+                              overlayShape: RoundSliderOverlayShape(overlayRadius: 16 * controlScale),
                             ),
                             child: Slider(
                               value: _volume,
