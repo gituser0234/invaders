@@ -98,27 +98,28 @@ class _VolumeControlOverlayState extends State<VolumeControlOverlay> {
                   // ==========================================
                   // 追加：上部のかっこいいタイトル表示
                   // ==========================================
-                  Positioned(
-                    top: viewportTop + 24 * scale,
-                    left: viewportLeft,
-                    width: viewportWidth,
-                    child: Center(
-                      child: Text(
-                        'INVADER GAME',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 100 * controlScale,
-                          fontWeight: FontWeight.w900,
-                          fontStyle: FontStyle.italic,
-                          letterSpacing: 4.0 * controlScale,
-                          shadows: [
-                            Shadow(color: Colors.cyanAccent, blurRadius: 12, offset: Offset(0, 0)),
-                            Shadow(color: Colors.blue, blurRadius: 20, offset: Offset(0, 2)),
-                          ],
+                  if (isTitle)
+                    Positioned(
+                      top: viewportTop + 24 * scale,
+                      left: viewportLeft,
+                      width: viewportWidth,
+                      child: Center(
+                        child: Text(
+                          'INVADER GAME',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 100 * controlScale,
+                            fontWeight: FontWeight.w900,
+                            fontStyle: FontStyle.italic,
+                            letterSpacing: 4.0 * controlScale,
+                            shadows: [
+                              Shadow(color: Colors.cyanAccent, blurRadius: 12, offset: Offset(0, 0)),
+                              Shadow(color: Colors.blue, blurRadius: 20, offset: Offset(0, 2)),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
                   // 既存のボリュームスライダー
                   Positioned(
