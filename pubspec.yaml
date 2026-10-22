@@ -110,7 +110,18 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
-flutter_icons:
+# flutter_icons:
+#   android: true
+#   ios: true
+#   image_path: "assets/icon/spaceinvaders_512.png"
+
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/spaceinvaders_512.png"
+  image_path_ios: "assets/icon/spaceinvaders_1024.png"
+  web:
+    generate: true
+    image_path: "assets/icon/spaceinvaders_512.png"
+    background_color: "#FFFFFF"
+    theme_color: "#FFFFFF"
