@@ -62,7 +62,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   static const int playerDotWidth = 11;
 
   double _enemyShootTimer = 0.0;
-  final double _enemyShootInterval = 1.0; // 1秒ごとに射出判定
+  static const double _enemyShootInterval = 1.0; // 1秒ごとに射出判定
   int playerLives = 3;
   int _gameGeneration = 0;
   // bool _isGameOver = false;
@@ -834,7 +834,11 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     //敵の射出処理
     _enemyShootTimer += dt;
     if (_enemyShootTimer >= _enemyShootInterval) {
-      _enemyShootTimer = 0.0;
+      // _enemyShootTimer = 0.0;
+      // 0に戻さず、余り時間を次の周期へ引き継ぐ　剰余代入演算子
+      // 長いフレーム停止でタイマーが数秒分たまった場合、余った時間で次のフレームも発射判定されることがあります。
+      // %= なら経過した周期は飛ばしつつ余りだけ引き継ぐため、発射間隔のずれを抑えながら、停止後の連続発射も避けられます。
+      _enemyShootTimer %= _enemyShootInterval;
 
       // 画面上の敵弾をカウント
       // final currentEnemyBullets = children.whereType<EnemyBullet>().length;
@@ -870,7 +874,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
       // 名古屋撃ち判定
       if (isAbovePlayerX && isNagoyaZone) {
-        print("NO shoot 名古屋撃ち再現");
+        // print("NO shoot 名古屋撃ち再現");
         return; // 直上では撃たない
       }
 
