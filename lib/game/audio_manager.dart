@@ -14,33 +14,14 @@ class AudioManager {
   late AudioPlayer _hitUfoPlayer;
   late AudioPlayer _ufo4loopPlayer;
   // 進軍効果音用
-  // late AudioPlayer _invaderStepPlayer;
-  // late final List<AudioPlayer> _invaderPlayers;
-  // late final List<List<AudioPlayer>> _invaderPlayers;
   late final List<AudioPool> _invaderPools = [];
 
   int _stepIndex = 0;
 
-  // bool _ufoPlaying = false;
-
-  // final List<String> _invaderSteps = ['sounds/80.mp3', 'sounds/120.mp3', 'sounds/150.mp3', 'sounds/mp3.wav'];
   // AudioPool はデフォルト　assets\audio\　らしい
   final List<String> _invaderSteps = ['80.wav', '120.wav', '150.wav', '120.wav'];
 
   double masterVolume = 1.0;
-
-  // // 進軍音（4種類×2 = 8プレイヤー）
-  // late final List<List<AudioPlayer>> _invaderPlayers;
-
-  // final List<String> _invaderSteps = [
-  //   'sounds/80.wav',
-  //   'sounds/120.wav',
-  //   'sounds/150.wav',
-  //   'sounds/120.wav',
-  // ];
-
-  // int _stepIndex = 0;
-  // int _poolIndex = 0;
 
   // 初期化フラグ
   bool _initialized = false;
@@ -127,25 +108,13 @@ class AudioManager {
     _hitPlayer.setVolume(value);
     _hitUfoPlayer.setVolume(value);
     _ufo4loopPlayer.setVolume(value);
-
-    // for (final list in _invaderPlayers) {
-    //   for (final player in list) {
-    //     player.setVolume(value);
-    //   }
-    // }
   }
 
   // 進軍効果音再生
   void playInvaderStep() {
-    // Future<void> playInvaderStep() async {
     final pool = _invaderPools[_stepIndex];
 
-    unawaited(
-      // pool.start(volume: masterVolume).catchError((e) {
-      //   debugPrint('invader step error: $e');
-      // }),
-      _playInvaderStep(pool),
-    );
+    unawaited(_playInvaderStep(pool));
 
     _stepIndex = (_stepIndex + 1) % _invaderPools.length;
   }

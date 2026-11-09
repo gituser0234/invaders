@@ -6,7 +6,6 @@ import 'package:invaders/game/invader_game.dart';
 
 ///　敵　インベーダー
 class Enemy extends PositionComponent with HasGameReference<InvaderGame> {
-  // class Enemy extends PositionComponent with CollisionCallbacks, HasGameReference<InvaderGame>{
   final double blockSize;
   final List<List<List<int>>> shapes;
   final Color color; // ★ 敵の色を外から指定
