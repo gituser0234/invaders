@@ -64,6 +64,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   double _enemyShootTimer = 0.0;
   final double _enemyShootInterval = 1.0; // 1秒ごとに射出判定
   int playerLives = 3;
+  int _gameGeneration = 0;
   // bool _isGameOver = false;
 
   // Block（防御壁）ドット幅・高さ
@@ -307,6 +308,8 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
   /// ゲーム開始処理
   Future<void> startGame() async {
+    _gameGeneration++;
+
     // final sw = Stopwatch()..start();
 
     // debugPrint("startGame start");
@@ -668,7 +671,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   /// 残機を1つ失う
   void loseLife() {
     playerLives--;
-    print("残機: $playerLives");
+    // print("残機: $playerLives");
 
     // 残機表示更新
     livesDisplay.setLives(playerLives);
@@ -679,8 +682,9 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     }
 
     // 1秒後に復活
+    final generation = _gameGeneration;
     Future.delayed(const Duration(milliseconds: 900), () {
-      if (state == GameState.playing) {
+      if (state == GameState.playing && generation == _gameGeneration) {
         spawnPlayer();
       }
     });
@@ -759,6 +763,8 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
   /// START画面に戻る
   void returnToTitle() {
+    _gameGeneration++;
+
     // ラウンド初期化
     currentRound = 1;
     // 開始位置　初期化

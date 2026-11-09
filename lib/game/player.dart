@@ -101,7 +101,7 @@ class Player extends PositionComponent with HasGameReference<InvaderGame>, Colli
     AudioManager().playExplosion();
     isDead = true;
 
-    print("Player hit!");
+    // print("Player hit!");
 
     // 爆発エフェクト
     // game.add(Explosion(position: position.clone()));
