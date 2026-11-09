@@ -34,9 +34,6 @@ class InputState {
 
 /// インベーダゲーム
 class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
-  // class InvaderGame extends FlameGame with HasCollisionDetection, HasKeyboardHandlerComponents {
-  // class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardHandler, HasTappables {
-
   static const bool showDebugGrid = false; //true; // デバッグ用グリッド
 
   bool get isMobile => defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
@@ -223,9 +220,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // AudioManager を初期化
-    // await AudioManager().init();
-
     //ハイスコア取得
     _hiScoreBox = Hive.box<int>('highscore');
 
@@ -334,7 +328,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // ハイスコア表示コンポーネント作成
     hiScoreDisplay = HiScoreDisplay();
     world.add(hiScoreDisplay);
-    // add(hiScoreDisplay);
 
     // スコア表示を作成
     scoreText = TextComponent(
@@ -348,12 +341,8 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       ),
       position: Vector2(3 * _blockSize, 1 * _blockSize), // 左上
     );
-    // add(scoreText);
-    world.add(scoreText);
 
-    // // EnemyManager を追加
-    // enemyManager = EnemyManager();
-    // add(enemyManager);
+    world.add(scoreText);
 
     // Block（防御壁）配置
     makeDefenseBlock();
@@ -371,7 +360,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       priority: 1000, // ← 重要！！
     );
 
-    // add(groundLine);
     world.add(groundLine);
 
     // 残機表示を作成（地面ラインの少し下）
@@ -381,7 +369,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       groundY + 2 * _blockSize, // 地面から少し下に配置
     );
 
-    // add(livesDisplay);
     world.add(livesDisplay);
 
     // ROUND表示
@@ -391,7 +378,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     addTouchControls();
 
     // ゲームエリア境界線
-    // final gameBorder = children.whereType<GameBorder>();
     final gameBorder = world.children.whereType<GameBorder>();
     if (gameBorder.isEmpty) {
       // add(GameBorder(blockSize: _blockSize, logicalWidth: baseWidth, logicalHeight: baseHeight));
@@ -400,10 +386,8 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
     //　デバッグ用グリッド表示
     if (showDebugGrid) {
-      // final debugGrids = children.whereType<DebugGrid>();
       final debugGrids = world.children.whereType<DebugGrid>();
       if (debugGrids.isEmpty) {
-        // add(DebugGrid(blockSize: _blockSize, logicalWidth: baseWidth, logicalHeight: baseHeight));
         world.add(DebugGrid(blockSize: _blockSize, logicalWidth: baseWidth, logicalHeight: baseHeight));
       }
     }
@@ -432,7 +416,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       anchor: Anchor.center,
       position: size / 2, // 画面の中央に配置
     );
-    // add(readyText);
+
     world.add(readyText);
 
     // ④ 0.8秒待つ（この間、画面には「READY...」が表示されている）  ここの前でやれば1.2秒で十分だったが直前だとちょっと足りなった。
@@ -447,7 +431,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     await Future.delayed(const Duration(milliseconds: 700));
 
     // ⑦ 演出が終わったので「GO!」の文字を画面から消す
-    // remove(readyText);
+
     world.remove(readyText);
 
     // ----------------------------------------------------
@@ -460,7 +444,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     // Enemy 配置
     spawnEnemy();
     // UFO Manager 追加
-    // add(UFOManager(blockSize: _blockSize, shapes: ufoShape, color: Colors.yellow));
+
     world.add(UFOManager(blockSize: _blockSize, shapes: ufoShape, color: Colors.yellow));
 
     // debugPrint("startGame end ${sw.elapsedMilliseconds}ms");
@@ -485,9 +469,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     removeUFOs();
     // 防御壁（再生成する方針なら）
     removeDefenseBlocks();
-
-    // 残機表示削除
-    // removeLivesDisplays();
 
     // 防御壁作成
     makeDefenseBlock();
@@ -524,7 +505,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
       final offset = (i - 1) * (blockWidth + gap); // 中央ブロック基準
       final posX = centerX + offset - blockWidth / 2;
       final block = DefenseBlock(position: Vector2(posX, blockY), blockSize: _blockSize);
-      // add(block);
+
       world.add(block);
     }
   }
@@ -600,7 +581,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   /// 敵削除
   void removeEnemies() {
     // children の中から Enemy だけ抽出して remove
-    // final enemies = children.whereType<Enemy>().toList(); // toList 重要！
+
     final enemies = world.children.whereType<Enemy>().toList(); // toList 重要！
     for (final e in enemies) {
       e.removeFromParent();
@@ -610,7 +591,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
   /// 残機表示削除
   void removeLivesDisplays() {
     // children の中から LivesDisplay だけ抽出して remove
-    // final livesDisplays = children.whereType<LivesDisplay>().toList(); // toList 重要！
     final livesDisplays = world.children.whereType<LivesDisplay>().toList(); // toList 重要！
     for (final l in livesDisplays) {
       l.removeFromParent();
@@ -619,7 +599,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
   /// 敵弾丸削除
   void removeEnemyBullets() {
-    // final bullets = children.whereType<EnemyBullet>().toList();
     final bullets = world.children.whereType<EnemyBullet>().toList();
     for (final b in bullets) {
       b.removeFromParent();
@@ -628,7 +607,6 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
   /// UFO削除
   void removeUFOs() {
-    // final ufos = children.whereType<UFO>().toList();
     final ufos = world.children.whereType<UFO>().toList();
     for (final u in ufos) {
       u.removeFromParent();
@@ -725,7 +703,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
 
     // UFO音停止
     AudioManager().stopUfo();
-    print("GAME OVER");
+    // print("GAME OVER");
   }
 
   /// ROUND数表示
@@ -893,11 +871,7 @@ class InvaderGame extends FlameGame with HasCollisionDetection, KeyboardEvents {
     for (var enemy in allEnemies) {
       // final columnX = enemy.position.x;
       final columnKey = (enemy.position.x / blockSize).round();
-      // 同じ列の敵がいれば、Y が最大（最下）を残す
-      // if (!bottomEnemiesMap.containsKey(columnX) ||
-      //     enemy.position.y > bottomEnemiesMap[columnX]!.position.y) {
-      //   bottomEnemiesMap[columnX] = enemy;
-      // }
+
       if (!bottomEnemiesMap.containsKey(columnKey) || enemy.position.y > bottomEnemiesMap[columnKey]!.position.y) {
         bottomEnemiesMap[columnKey] = enemy;
       }
@@ -996,7 +970,7 @@ class GameOverMessage extends PositionComponent with TapCallbacks {
       position: Vector2(size.x / 2, size.y / 2 - 50),
     );
 
-    add(_text); //TODO:   world使えない
+    add(_text);
   }
 
   @override
