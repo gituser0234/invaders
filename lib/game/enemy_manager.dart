@@ -90,7 +90,7 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
     // final enemies = game.children.whereType<Enemy>().toList();
     // ゲームクリア判定
     if (enemies.isEmpty && game.state == GameState.playing) {
-      print("  enemies.isEmpty  GAME CLEAR,  NEXT GAME");
+      // print("  enemies.isEmpty  GAME CLEAR,  NEXT GAME");
       // ステータス変更
       game.state = GameState.roundClear;
       // UFO音消す
@@ -128,8 +128,7 @@ class EnemyManager extends Component with HasGameReference<InvaderGame> {
     for (final e in enemies) {
       e.x += step * direction;
 
-      if ((direction < 0 && e.x <= edgeMargin) ||
-          (direction > 0 && e.x + e.width >= game.size.x - edgeMargin)) {
+      if ((direction < 0 && e.x <= edgeMargin) || (direction > 0 && e.x + e.width >= game.size.x - edgeMargin)) {
         hitEdge = true;
       }
 
