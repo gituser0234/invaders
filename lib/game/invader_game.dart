@@ -1079,6 +1079,38 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
   late final Paint _bgPaint = Paint();
   late final Paint _borderPaint = Paint();
 
+  late final Paint _highlightPaint = Paint()
+    ..color = Colors.white.withValues(alpha: 0.15)
+    ..style = PaintingStyle.fill;
+
+  late final Paint _innerBorderPaint = Paint()
+    ..color = Colors.white.withValues(alpha: 0.3)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1.0;
+
+  late final Paint _arrowPaint = Paint()
+    ..color = Colors.black.withValues(alpha: 0.85)
+    ..style = PaintingStyle.fill;
+
+  late final Paint _ringPaint = Paint()
+    ..color = Colors.black.withValues(alpha: 0.4)
+    ..style = PaintingStyle.fill;
+
+  late final Paint _ringBorderPaint = Paint()
+    ..color = Colors.black.withValues(alpha: 0.7)
+    ..strokeWidth = 2.5
+    ..style = PaintingStyle.stroke;
+
+  late final Paint _coreOuterPaint = Paint()
+    ..color = Colors.deepOrange.withValues(alpha: 0.6)
+    ..style = PaintingStyle.fill;
+
+  late final Paint _coreInnerPaint = Paint()
+    ..color = Colors.black.withValues(alpha: 0.9)
+    ..style = PaintingStyle.fill;
+
+  final Path _arrowPath = Path();
+
   TouchButton({
     required this.onDown,
     required this.onUp,
@@ -1110,10 +1142,8 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
     if (!_pressed) {
       final highlightRect = Rect.fromLTWH(2, 2, size.x - 4, size.y * 0.4);
       final highlightRRect = RRect.fromRectAndRadius(highlightRect, Radius.circular(size.y * 0.15));
-      final highlightPaint = Paint()
-        ..color = Colors.white.withValues(alpha: 0.15)
-        ..style = PaintingStyle.fill;
-      canvas.drawRRect(highlightRRect, highlightPaint);
+
+      canvas.drawRRect(highlightRRect, _highlightPaint);
     }
 
     // 3. 2重の枠線（外枠：深みのある色、内側のアクセント枠：明るい色）
@@ -1126,11 +1156,8 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
     // 内側の細いエッジライン
     final innerRect = rect.deflate(3);
     final innerRRect = RRect.fromRectAndRadius(innerRect, Radius.circular(size.y * 0.17));
-    final innerBorderPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-    canvas.drawRRect(innerRRect, innerBorderPaint);
+
+    canvas.drawRRect(innerRRect, _innerBorderPaint);
 
     // 4. アイコン描画
     switch (type) {
@@ -1148,10 +1175,6 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
 
   /// カッコいいシャープな矢印描画
   void _drawArrow(Canvas canvas, {required bool left}) {
-    final paint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.85)
-      ..style = PaintingStyle.fill;
-
     // 押されている時は矢印も少し動く（押し込み感）
     final offsetY = _pressed ? 2.0 : 0.0;
     final centerY = (size.y / 2) + offsetY;
@@ -1160,19 +1183,19 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
     final arrowHeight = size.y * 0.45;
     final centerX = size.x / 2;
 
-    final path = Path();
+    // final path = Path();
     if (left) {
-      path.moveTo(centerX + arrowWidth / 2, centerY - arrowHeight / 2);
-      path.lineTo(centerX - arrowWidth / 2, centerY);
-      path.lineTo(centerX + arrowWidth / 2, centerY + arrowHeight / 2);
+      _arrowPath.moveTo(centerX + arrowWidth / 2, centerY - arrowHeight / 2);
+      _arrowPath.lineTo(centerX - arrowWidth / 2, centerY);
+      _arrowPath.lineTo(centerX + arrowWidth / 2, centerY + arrowHeight / 2);
     } else {
-      path.moveTo(centerX - arrowWidth / 2, centerY - arrowHeight / 2);
-      path.lineTo(centerX + arrowWidth / 2, centerY);
-      path.lineTo(centerX - arrowWidth / 2, centerY + arrowHeight / 2);
+      _arrowPath.moveTo(centerX - arrowWidth / 2, centerY - arrowHeight / 2);
+      _arrowPath.lineTo(centerX + arrowWidth / 2, centerY);
+      _arrowPath.lineTo(centerX - arrowWidth / 2, centerY + arrowHeight / 2);
     }
 
-    path.close();
-    canvas.drawPath(path, paint);
+    _arrowPath.close();
+    canvas.drawPath(_arrowPath, _arrowPaint);
   }
 
   /// 近未来的な発射（ファイア）アイコン
@@ -1181,119 +1204,16 @@ class TouchButton extends PositionComponent with TapCallbacks, DragCallbacks {
     final center = Offset(size.x / 2, (size.y / 2) + offsetY);
     final radius = (size.x < size.y ? size.x : size.y) * 0.32;
 
-    // 外側のリング
-    final ringPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.4)
-      ..style = PaintingStyle.fill;
-
-    final ringBorder = Paint()
-      ..color = Colors.black.withValues(alpha: 0.7)
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawCircle(center, radius, ringPaint);
-    canvas.drawCircle(center, radius, ringBorder);
+    canvas.drawCircle(center, radius, _ringPaint);
+    canvas.drawCircle(center, radius, _ringBorderPaint);
 
     // 中央のレーザーコア風ドット（中心が光っているような二重構造）
-    final coreOuterPaint = Paint()
-      ..color = Colors.deepOrange.withValues(alpha: 0.6)
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius * 0.5, coreOuterPaint);
 
-    final coreInnerPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.9)
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius * 0.3, coreInnerPaint);
+    canvas.drawCircle(center, radius * 0.5, _coreOuterPaint);
+
+    canvas.drawCircle(center, radius * 0.3, _coreInnerPaint);
   }
 
-  /*
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
-
-    final rect = Rect.fromLTWH(0, 0, size.x, size.y);
-
-    // 背景
-    _bgPaint.color = _pressed ? color.withValues(alpha: 0.9) : color;
-    canvas.drawRect(rect, _bgPaint);
-
-    // 枠線
-    _borderPaint
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-    canvas.drawRect(rect, _borderPaint);
-
-    // 矢印／アイコン描画
-    switch (type) {
-      case ButtonType.left:
-        _drawArrow(canvas, left: true);
-        // _drawArrowIOS(canvas, left: true);
-        break;
-      case ButtonType.right:
-        _drawArrow(canvas, left: false);
-        break;
-      case ButtonType.fire:
-        _drawFireIcon(canvas);
-        break;
-    }
-  }
-
-  /// 矢印描画
-  void _drawArrow(Canvas canvas, {required bool left}) {
-    final paint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.9)
-      ..style = PaintingStyle.fill;
-
-    final centerY = size.y / 2;
-    final arrowWidth = size.x * 0.25;
-    final arrowHeight = size.y * 0.4;
-
-    final centerX = size.x / 2;
-
-    final path = Path();
-
-    if (left) {
-      path.moveTo(centerX + arrowWidth / 2, centerY - arrowHeight / 2);
-      path.lineTo(centerX - arrowWidth / 2, centerY);
-      path.lineTo(centerX + arrowWidth / 2, centerY + arrowHeight / 2);
-    } else {
-      path.moveTo(centerX - arrowWidth / 2, centerY - arrowHeight / 2);
-      path.lineTo(centerX + arrowWidth / 2, centerY);
-      path.lineTo(centerX - arrowWidth / 2, centerY + arrowHeight / 2);
-    }
-
-    path.close();
-    canvas.drawPath(path, paint);
-  }
-
-  /// 発射アイコン
-  void _drawFireIcon(Canvas canvas, {bool pressed = false}) {
-    final center = Offset(size.x / 2, size.y / 2);
-    final radius = (size.x < size.y ? size.x : size.y) * 0.35;
-
-    // 背景
-    final bgPaint = Paint()
-      ..color = pressed ? Colors.black.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.25)
-      ..style = PaintingStyle.fill;
-
-    // 枠
-    final borderPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.6)
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    canvas.drawCircle(center, radius, bgPaint);
-    canvas.drawCircle(center, radius, borderPaint);
-
-    // 中央の発射ドット
-    final dotPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.9)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(center, radius * 0.35, dotPaint);
-  }
-*/
   @override
   void onTapDown(TapDownEvent event) {
     if (_pressed) return;
